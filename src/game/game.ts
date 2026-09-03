@@ -462,7 +462,7 @@ export class Game {
     this.downedMs += dtMs;
 
     if (
-      this.downedMs > CONFIG.downed_prompt_delay &&
+      this.downedMs > CONFIG.explosion_ms &&
       this.input.pressed("punch")
     ) {
       this.returnToSelect();

@@ -30,11 +30,11 @@ export const CONFIG = {
   missile_spawn_delay: 900, // ms between a cleared screen and the next missile
 
   // --- MISS aftermath (non-final miss): the fallen puncher keeps getting
-  //     shelled; the "PUNCH" prompt appears (and accepts input) only after a
-  //     delay, so the player watches the barrage first. Final miss skips this
-  //     and goes straight to BAD END. ---
+  //     shelled; the "PUNCH" prompt appears (and accepts input) as soon as the
+  //     killing blow's own explosion animation finishes (`explosion_ms`
+  //     below) — no extra wait past that. Final miss skips this and goes
+  //     straight to BAD END. ---
   downed_barrage_delay: 550, // ms between missiles raining on the corpse
-  downed_prompt_delay: 3000, // ms before the punch-to-exit prompt shows / works
 
   // --- Run-ending score limits (placeholder values, tune freely) ---
   limit_punch: 19, // PUNCH past this many -> TOO TIRED (run stops)

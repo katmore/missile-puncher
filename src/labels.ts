@@ -38,7 +38,8 @@ export const LABELS = {
 
   /**
    * MISS aftermath — the blinking prompt over the shelled corpse. Edit freely
-   * (it appears after `downed_prompt_delay`). "!" renders; lowercase does not.
+   * (it appears once the killing blow's `explosion_ms` animation finishes).
+   * "!" renders; lowercase does not.
    */
   downed: "PUNCH!!!",
 

@@ -267,8 +267,9 @@ function blinkPrompt(
 
 /**
  * MISS aftermath: the world stays live (missiles keep bursting on the downed
- * puncher) — no dim overlay. The blinking prompt to punch out only appears
- * once `downedMs` passes `downed_prompt_delay` (you watch the barrage first).
+ * puncher) — no dim overlay. The blinking prompt to punch out appears as soon
+ * as the killing blow's explosion animation (`explosion_ms`) finishes — the
+ * corpse keeps taking barrage fire in the background either way.
  */
 export function drawDownedScreen(
   ctx: CanvasRenderingContext2D,
@@ -276,7 +277,7 @@ export function drawDownedScreen(
   downedMs: number,
 ): void {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
-  if (downedMs < CONFIG.downed_prompt_delay) return;
+  if (downedMs < CONFIG.explosion_ms) return;
   blinkPrompt(ctx, LABELS.downed, clockMs);
 }
 

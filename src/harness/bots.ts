@@ -87,7 +87,7 @@ export function makeBot(kind: BotKind, seed = 1): Bot {
       if (v.scene === "select") return { move: 0, punch: true, reset: false };
       if (v.scene === "escalation") return NONE;
       if (v.scene === "downed") {
-        return { move: 0, punch: v.timers.downed > CONFIG.downed_prompt_delay, reset: false };
+        return { move: 0, punch: v.timers.downed > CONFIG.explosion_ms, reset: false };
       }
       if (v.scene === "tired") {
         return { move: 0, punch: v.timers.tired > CONFIG.tired_prompt_delay, reset: false };
