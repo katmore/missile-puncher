@@ -136,35 +136,45 @@ export function drawFist(
 }
 
 /**
- * The missile sheet's exhaust frame (frame 1 of 3 — mid-flicker, has the
- * exhaust flame), composited from two source slices that skip 2 columns of
- * its flat midsection shaft (that run is a uniform repeating pattern, so
- * removing a couple of its columns is seamless) — same nose, fin, and
- * exhaust flame, just a couple pixels shorter so it sits more snugly in
- * the HUD bar. Used by the HUD's EXPL indicator instead of the "EXPL: N"
- * text it replaced. The sheet's missiles point left by default (see
- * renderer.ts's `flip` note), so drawMissileIcon always mirrors this —
- * nose right, exhaust trailing out the left, matching reading order (icon,
- * then its number).
+ * The missile sheet's two exhaust-flicker frames (1 and 2 of 3 — frame 2's
+ * flame is bigger and two-toned orange/yellow, same flicker the flying
+ * missile itself cycles through every 70ms), each composited from two
+ * source slices that skip 2 columns of the flat midsection shaft (that run
+ * is a uniform repeating pattern, so removing a couple of its columns is
+ * seamless) — same nose, fin, and exhaust flame, just a couple pixels
+ * shorter so it sits more snugly in the HUD bar. The tail slice is sized to
+ * frame 2's larger flame so the icon's width — and the number after it —
+ * doesn't shift as it flickers; frame 1's slightly narrower flame just
+ * leaves its last column transparent. Used by the HUD's EXPL indicator
+ * instead of the "EXPL: N" text it replaced. The sheet's missiles point
+ * left by default (see renderer.ts's `flip` note), so drawMissileIcon
+ * always mirrors this — nose right, exhaust trailing out the left,
+ * matching reading order (icon, then its number).
  */
-const MISSILE_FRAME1_X = SHEETS.missile.cellW;
-const MISSILE_NOSE = { x: MISSILE_FRAME1_X + 1, w: 11 } as const; // nose + most of the shaft
-const MISSILE_TAIL = { x: MISSILE_FRAME1_X + 14, w: 9 } as const; // rest of shaft + fin + flame
+const MISSILE_NOSE_OFFSET = 1; // nose + most of the shaft
+const MISSILE_NOSE_W = 11;
+const MISSILE_TAIL_OFFSET = 14; // rest of shaft + fin + flame
+const MISSILE_TAIL_W = 10;
 const MISSILE_Y = 2;
 const MISSILE_H = 8;
 
 export const MISSILE_CROP = {
-  w: MISSILE_NOSE.w + MISSILE_TAIL.w,
+  w: MISSILE_NOSE_W + MISSILE_TAIL_W,
   h: MISSILE_H,
 } as const;
+
+/** Which exhaust-flicker frame (1 or 2 of the missile sheet) to draw. */
+export type MissileFlicker = 1 | 2;
 
 export function drawMissileIcon(
   ctx: CanvasRenderingContext2D,
   sheet: Sheet,
   dx: number,
   dy: number,
+  frame: MissileFlicker = 1,
 ): void {
   const { w, h } = MISSILE_CROP;
+  const frameX = sheet.cellW * frame;
   const roundedX = Math.round(dx);
   const roundedY = Math.round(dy);
   ctx.save();
@@ -172,24 +182,24 @@ export function drawMissileIcon(
   ctx.scale(-1, 1);
   ctx.drawImage(
     sheet.img,
-    MISSILE_NOSE.x,
+    frameX + MISSILE_NOSE_OFFSET,
     MISSILE_Y,
-    MISSILE_NOSE.w,
+    MISSILE_NOSE_W,
     h,
     0,
     0,
-    MISSILE_NOSE.w,
+    MISSILE_NOSE_W,
     h,
   );
   ctx.drawImage(
     sheet.img,
-    MISSILE_TAIL.x,
+    frameX + MISSILE_TAIL_OFFSET,
     MISSILE_Y,
-    MISSILE_TAIL.w,
+    MISSILE_TAIL_W,
     h,
-    MISSILE_NOSE.w,
+    MISSILE_NOSE_W,
     0,
-    MISSILE_TAIL.w,
+    MISSILE_TAIL_W,
     h,
   );
   ctx.restore();

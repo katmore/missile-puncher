@@ -17,6 +17,7 @@ import {
   frameIndex,
   puncherSheet,
   type Assets,
+  type MissileFlicker,
 } from "./sprites";
 
 const rot13 = (s: string): string =>
@@ -90,7 +91,10 @@ const pnchBadgeWidth = (remaining: number): number =>
 
 /**
  * A horizontal missile + remaining-deflects-until-escalation, replacing the
- * old "EXPL: N" text. `x, y` is the icon's top-left corner.
+ * old "EXPL: N" text. `x, y` is the icon's top-left corner. The icon
+ * flickers between the sheet's two exhaust frames on the same 70ms cadence
+ * as a flying missile (see renderer.ts's `missileAnimMs`), so it reads as
+ * the same animation rather than a frozen still.
  */
 function drawExplBadge(
   ctx: CanvasRenderingContext2D,
@@ -99,8 +103,10 @@ function drawExplBadge(
   x: number,
   y: number,
   color: string,
+  missileAnimMs: number,
 ): void {
-  drawMissileIcon(ctx, assets.missile, x, y);
+  const frame: MissileFlicker = 1 + (Math.floor(missileAnimMs / 70) % 2) as MissileFlicker;
+  drawMissileIcon(ctx, assets.missile, x, y, frame);
   const remaining = Math.max(0, CONFIG.limit_explode - game.deflects);
   drawBadgeNumber(ctx, x, y, MISSILE_CROP.w, MISSILE_CROP.h, remaining, color);
 }
@@ -119,6 +125,7 @@ export function drawHud(
   ctx: CanvasRenderingContext2D,
   game: Game,
   assets: Assets,
+  missileAnimMs: number,
 ): void {
   ctx.fillStyle = "rgba(0,0,0,0.30)";
   ctx.fillRect(0, 0, SCREEN_W, 11);
@@ -133,7 +140,7 @@ export function drawHud(
 
   const explX = pnchX + pnchBadgeWidth(pnchRemaining(game)) + textWidth(h.sep);
   const explY = Math.round((11 - MISSILE_CROP.h) / 2);
-  drawExplBadge(ctx, assets, game, explX, explY, "#ffffff");
+  drawExplBadge(ctx, assets, game, explX, explY, "#ffffff", missileAnimMs);
 
   // ESC / SPD stay plain text, right-justified against the far edge.
   const rest = [
