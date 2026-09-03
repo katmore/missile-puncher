@@ -78,13 +78,16 @@ export class Game {
    */
   punchesBeforeSwing = 0;
 
-  // Persistent "level" — bumped on each escalation (EXPLODE limit reached),
-  // wraps 0..MAX_ESCALATION_TIER. Never reset except a page reload / TOO TIRED.
+  // Current "level" — bumped on each escalation (EXPLODE limit reached),
+  // wraps 0..MAX_ESCALATION_TIER. Resets to 0 on a BAD END new game (see
+  // newGame()) and a page reload; survives everything else, TOO TIRED
+  // included.
   escalate = 0;
   /**
    * Integer, starts at 0. Goes up by 1 each time ESCALATE wraps past its last
    * tier; each point makes horizontal missiles `+missile_speed_per_speed_level`
-   * (0.5x) faster. Persistent like `escalate`.
+   * (0.5x) faster. Persistent — unlike `escalate`, survives a BAD END new
+   * game too, so a run that's earned faster missiles keeps that challenge.
    */
   speedLevel = 0;
 
@@ -347,11 +350,16 @@ export class Game {
     this.scene = "select";
   }
 
-  /** Wipe the tally and start fresh (only from the kill screen). */
+  /**
+   * Wipe the tally and start fresh (BAD END's "punch or R" prompt).
+   * ESCALATE resets too — SPEED doesn't, so a run that's earned faster
+   * missiles keeps that challenge even after a fresh escalation ladder.
+   */
   private newGame(): void {
     this.punches = 0;
     this.deflects = 0;
     this.hits = 0;
+    this.escalate = 0;
     this.reset();
     this.leftGender = this.rng.bool() ? "m" : "f";
     this.gender = this.leftGender;

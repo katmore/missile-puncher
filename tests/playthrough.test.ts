@@ -79,3 +79,17 @@ describe("SPEED score", () => {
     expect(sim.view().speedLevel).toBe(3);
   });
 });
+
+describe("BAD END new game", () => {
+  test("resets ESCALATE to 0 but keeps SPEED", () => {
+    const sim = makeSim({ seed: 5, escalate: 3, speedLevel: 2, scene: "end" });
+    sim.game.endMs = CONFIG.end_prompt_delay + 1; // past the prompt delay, input now accepted
+    sim.harness.input.tap("punch");
+    sim.step();
+
+    const v = sim.view();
+    expect(v.scene).toBe("select");
+    expect(v.escalate).toBe(0);
+    expect(v.speedLevel).toBe(2);
+  });
+});
