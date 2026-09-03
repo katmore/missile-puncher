@@ -37,9 +37,9 @@ export const CONFIG = {
   downed_barrage_delay: 550, // ms between missiles raining on the corpse
 
   // --- Run-ending score limits (placeholder values, tune freely) ---
-  limit_punch: 4, // whiffed punches past this many -> TOO TIRED (a landed
+  limit_punch: 2, // whiffed punches past this many -> TOO TIRED (a landed
   //   punch refunds itself — see Game.resolveCollisions — so this is really
-  //   a whiff-tolerance, not a raw punch-count cap; starts at limit+1 (5)
+  //   a whiff-tolerance, not a raw punch-count cap; starts at limit+1 (3)
   limit_explode: 9, // EXPLODE (deflect) this many -> escalate a level
   limit_miss: 9, // get hit this many times -> bad ending
   escalation_screen_ms: 3000, // how long the CONGRATS interstitial holds

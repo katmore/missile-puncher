@@ -5,9 +5,9 @@ import { pnchRemaining } from "../src/render/hud";
 
 /**
  * A landed punch refunds the PUNCH it cost (Game.resolveCollisions) — only
- * whiffs actually drain toward TOO TIRED. limit_punch is tiny (4) precisely
- * because of this: without the refund, any sustained play would exhaust it
- * almost immediately.
+ * whiffs actually drain toward TOO TIRED. limit_punch can be this tiny
+ * precisely because of this: without the refund, any sustained play would
+ * exhaust it almost immediately.
  */
 describe("PUNCH refund", () => {
   test("sustained accurate play cycles through escalations without ever exhausting PUNCH", () => {
@@ -15,8 +15,8 @@ describe("PUNCH refund", () => {
     sim.bot("perfect", 4);
 
     // Reaching ESCALATE 2 needs 2 * limit_explode (18) successful deflects —
-    // far more punches than limit_punch (4) raw throws would allow without
-    // the refund. deflects itself resets every escalation lap, so watch the
+    // far more punches than limit_punch raw throws would allow without the
+    // refund. deflects itself resets every escalation lap, so watch the
     // persistent ESCALATE counter instead.
     sim.runUntil((v) => v.escalate >= 2 || v.scene === "tired", 120_000);
     const v = sim.view();
@@ -40,7 +40,7 @@ describe("PUNCH refund", () => {
     sim.runUntil((v) => v.scene === "escalation", 2_000);
     sim.runUntil((v) => v.scene === "play", CONFIG.escalation_screen_ms + 2_000);
 
-    expect(sim.view().scores.punches).toBe(0); // -> displays as the full 5
+    expect(sim.view().scores.punches).toBe(0); // -> displays as the full 3 (limit_punch + 1)
   });
 
   test("a body hit (MISS) resets PUNCH to full, like an escalation", () => {
@@ -54,7 +54,7 @@ describe("PUNCH refund", () => {
       sim.runUntil((v) => v.scores.hits > 0 || v.scene !== "play", 20_000);
       expect(sim.view().scores.hits).toBe(1);
       expect(sim.view().scene).toBe("downed");
-      expect(sim.view().scores.punches).toBe(0); // -> displays as the full 5
+      expect(sim.view().scores.punches).toBe(0); // -> displays as the full 3 (limit_punch + 1)
     } finally {
       CONFIG.missile_spawn_delay = savedSpawnDelay;
     }
