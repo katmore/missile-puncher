@@ -81,11 +81,19 @@ function drawPnchBadge(
   color: string,
 ): void {
   drawFist(ctx, puncherSheet(assets, game.gender), x, y);
-  const remaining = Math.max(0, CONFIG.limit_punch - game.punches);
-  drawBadgeNumber(ctx, x, y, FIST_CROP.w, FIST_CROP.h, remaining, color);
+  drawBadgeNumber(ctx, x, y, FIST_CROP.w, FIST_CROP.h, pnchRemaining(game), color);
 }
 const pnchBadgeWidth = (remaining: number): number =>
   badgeWidth(FIST_CROP.w, remaining);
+
+/**
+ * Punches left before the one that triggers TOO TIRED — the trigger is
+ * `punches > limit_punch`, i.e. `limit_punch + 1` throws are actually
+ * allowed, so this reads "1" on the player's last throw, not "0" a throw
+ * early. Mechanics (the trigger itself) are unchanged; this is display-only.
+ */
+const pnchRemaining = (game: Game): number =>
+  Math.max(0, CONFIG.limit_punch + 1 - game.punches);
 
 /** Running scoreboard, always visible during play. */
 export function drawHud(
@@ -109,10 +117,7 @@ export function drawHud(
     `${h.escalate}: ${game.escalate}`,
     `${h.speed}: ${game.speedLevel}`,
   ].join(h.sep);
-  const restX =
-    pnchX +
-    pnchBadgeWidth(Math.max(0, CONFIG.limit_punch - game.punches)) +
-    textWidth(h.sep);
+  const restX = pnchX + pnchBadgeWidth(pnchRemaining(game)) + textWidth(h.sep);
   drawText(ctx, rest, restX, 2, "#ffffff", "left");
 }
 

@@ -19,7 +19,9 @@ export const LABELS = {
    * (ROT13'd there), which still label everything by these strings.
    */
   hud: {
-    punch: "PNCH", //     counts DOWN from limit_punch to 0 (kill-screen limit)
+    punch: "PNCH", //     counts DOWN from limit_punch+1 to 0, so it's 1 on the
+    //                    last allowed punch, not 0 a punch early (see hud.ts
+    //                    pnchRemaining) (kill-screen limit)
     explode: "EXPL", // counts DOWN from limit_explode to 0 (escalate limit)
     miss: "DED", //        counts DOWN from limit_miss to 0 (bad-end limit)
     escalate: "ESC", // current level (wraps 0..MAX_ESCALATION_TIER)
