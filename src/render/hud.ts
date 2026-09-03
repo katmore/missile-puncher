@@ -36,7 +36,17 @@ function badgeWidth(iconW: number, value: number): number {
   return iconW + BADGE_GAP + textWidth(String(value));
 }
 
-/** The number half of an icon badge, right of an icon already drawn at (x, y). */
+/**
+ * The number half of an icon badge, right of an icon already drawn at (x, y).
+ * By default the number is centred against the icon's own height — fine
+ * when the icon fills its own local context (e.g. the TOO TIRED fist
+ * badge). `numY` overrides that: the three HUD-bar badges pass a shared
+ * value instead, since deriving each from its own (differently-sized) icon
+ * independently rounds inconsistently — `(iconH - GLYPH_H) / 2` lands on a
+ * .5 for an even-vs-odd height mismatch, and `Math.round` breaks that tie
+ * in different directions depending on the sign, which visibly misaligned
+ * the EXPL number a row below DED's and PNCH's.
+ */
 function drawBadgeNumber(
   ctx: CanvasRenderingContext2D,
   x: number,
@@ -45,9 +55,9 @@ function drawBadgeNumber(
   iconH: number,
   value: number,
   color: string,
+  numY: number = y + Math.round((iconH - GLYPH_H) / 2),
 ): void {
   const numX = x + iconW + BADGE_GAP;
-  const numY = y + Math.round((iconH - GLYPH_H) / 2);
   drawText(ctx, String(value), numX, numY, color, "left");
 }
 
@@ -62,10 +72,11 @@ function drawDedBadge(
   x: number,
   y: number,
   color: string,
+  numY?: number,
 ): void {
   drawHead(ctx, puncherSheet(assets, game.gender), x, y);
   const remaining = CONFIG.limit_miss - game.hits;
-  drawBadgeNumber(ctx, x, y, HEAD_CROP.w, HEAD_CROP.h, remaining, color);
+  drawBadgeNumber(ctx, x, y, HEAD_CROP.w, HEAD_CROP.h, remaining, color, numY);
 }
 const dedBadgeWidth = (remaining: number): number =>
   badgeWidth(HEAD_CROP.w, remaining);
@@ -82,9 +93,10 @@ function drawPnchBadge(
   x: number,
   y: number,
   color: string,
+  numY?: number,
 ): void {
   drawFist(ctx, puncherSheet(assets, game.gender), x, y);
-  drawBadgeNumber(ctx, x, y, FIST_CROP.w, FIST_CROP.h, pnchRemaining(game), color);
+  drawBadgeNumber(ctx, x, y, FIST_CROP.w, FIST_CROP.h, pnchRemaining(game), color, numY);
 }
 const pnchBadgeWidth = (remaining: number): number =>
   badgeWidth(FIST_CROP.w, remaining);
@@ -104,11 +116,12 @@ function drawExplBadge(
   y: number,
   color: string,
   missileAnimMs: number,
+  numY?: number,
 ): void {
   const frame: MissileFlicker = 1 + (Math.floor(missileAnimMs / 70) % 2) as MissileFlicker;
   drawMissileIcon(ctx, assets.missile, x, y, frame);
   const remaining = Math.max(0, CONFIG.limit_explode - game.deflects);
-  drawBadgeNumber(ctx, x, y, MISSILE_CROP.w, MISSILE_CROP.h, remaining, color);
+  drawBadgeNumber(ctx, x, y, MISSILE_CROP.w, MISSILE_CROP.h, remaining, color, numY);
 }
 
 /**
@@ -144,7 +157,11 @@ export function drawHud(
   const h = LABELS.hud;
 
   const margin = 2;
-  drawDedBadge(ctx, assets, game, margin, 0, "#ffffff");
+  // Shared vertical centre for all three numbers in the bar — see
+  // drawBadgeNumber's `numY` doc. Deriving each independently from its own
+  // (differently-sized) icon rounds inconsistently between them.
+  const barNumY = Math.round((11 - GLYPH_H) / 2);
+  drawDedBadge(ctx, assets, game, margin, 0, "#ffffff", barNumY);
   const pnchX =
     margin + dedBadgeWidth(CONFIG.limit_miss - game.hits) + textWidth(h.sep);
   // Not simply (11 - FIST_CROP.h) / 2: the fist crop's own opaque pixels
@@ -153,11 +170,11 @@ export function drawHud(
   // too low. y: 2 (matching the EXPL badge below) centers the fist's actual
   // visual mass instead.
   const pnchY = 2;
-  drawPnchBadge(ctx, assets, game, pnchX, pnchY, "#ffffff");
+  drawPnchBadge(ctx, assets, game, pnchX, pnchY, "#ffffff", barNumY);
 
   const explX = pnchX + pnchBadgeWidth(pnchRemaining(game)) + textWidth(h.sep);
   const explY = Math.round((11 - MISSILE_CROP.h) / 2);
-  drawExplBadge(ctx, assets, game, explX, explY, "#ffffff", missileAnimMs);
+  drawExplBadge(ctx, assets, game, explX, explY, "#ffffff", missileAnimMs, barNumY);
 
   // Player-friendly "level" — SPEED+1 (1-based: it starts at 0 internally)
   // and ESCALATE, plain "S-E" with no label, right-justified against the
