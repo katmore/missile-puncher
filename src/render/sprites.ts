@@ -95,10 +95,12 @@ export function frameIndex(
 /**
  * Crop of just the head from the idle clip's first frame (row 0, col 0) —
  * same rect works for both puncher sheets, the head sits in the same spot on
- * every cell. Used by the HUD's DED indicator (see hud.ts) instead of the
- * "DED: N" text it replaced.
+ * every cell. Trimmed to its non-transparent bounds (the untrimmed cell has
+ * ~2px of empty margin on each side) so its HUD badge doesn't sit with a
+ * bigger gap before its number than the other badges have. Used by the
+ * HUD's DED indicator (see hud.ts) instead of the "DED: N" text it replaced.
  */
-export const HEAD_CROP = { x: 5, y: 0, w: 13, h: 11 } as const;
+export const HEAD_CROP = { x: 7, y: 0, w: 10, h: 11 } as const;
 
 export function drawHead(
   ctx: CanvasRenderingContext2D,
@@ -139,9 +141,9 @@ export function drawFist(
  * The missile sheet's two exhaust-flicker frames (1 and 2 of 3 — frame 2's
  * flame is bigger and two-toned orange/yellow, same flicker the flying
  * missile itself cycles through every 70ms), each composited from two
- * source slices that skip 2 columns of the flat midsection shaft (that run
- * is a uniform repeating pattern, so removing a couple of its columns is
- * seamless) — same nose, fin, and exhaust flame, just a couple pixels
+ * source slices that skip 3 columns of the flat midsection shaft (that run
+ * is a uniform repeating pattern, so removing a few of its columns is
+ * seamless) — same nose, fin, and exhaust flame, just a few pixels
  * shorter so it sits more snugly in the HUD bar. The tail slice is sized to
  * frame 2's larger flame so the icon's width — and the number after it —
  * doesn't shift as it flickers; frame 1's slightly narrower flame just
@@ -152,7 +154,7 @@ export function drawFist(
  * matching reading order (icon, then its number).
  */
 const MISSILE_NOSE_OFFSET = 1; // nose + most of the shaft
-const MISSILE_NOSE_W = 11;
+const MISSILE_NOSE_W = 10;
 const MISSILE_TAIL_OFFSET = 14; // rest of shaft + fin + flame
 const MISSILE_TAIL_W = 10;
 const MISSILE_Y = 2;

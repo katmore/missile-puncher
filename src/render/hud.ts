@@ -135,7 +135,12 @@ export function drawHud(
   drawDedBadge(ctx, assets, game, margin, 0, "#ffffff");
   const pnchX =
     margin + dedBadgeWidth(CONFIG.limit_miss - game.hits) + textWidth(h.sep);
-  const pnchY = Math.round((11 - FIST_CROP.h) / 2);
+  // Not simply (11 - FIST_CROP.h) / 2: the fist crop's own opaque pixels
+  // are bottom-heavy within its box (the top rows are mostly the sleeve
+  // outline's corner), so centering the box geometrically reads as sitting
+  // too low. y: 2 (matching the EXPL badge below) centers the fist's actual
+  // visual mass instead.
+  const pnchY = 2;
   drawPnchBadge(ctx, assets, game, pnchX, pnchY, "#ffffff");
 
   const explX = pnchX + pnchBadgeWidth(pnchRemaining(game)) + textWidth(h.sep);
