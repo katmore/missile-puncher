@@ -179,10 +179,10 @@ export function drawHud(
   const explY = 1;
   drawExplBadge(ctx, assets, game, explX, explY, "#ffffff", missileAnimMs, barNumY);
 
-  // Player-friendly "level" — SPEED+1 (1-based: it starts at 0 internally)
-  // and ESCALATE, plain "S-E" with no label, right-justified against the
-  // far edge. e.g. a fresh game reads "1-0".
-  const level = `${game.speedLevel + 1}-${game.escalate}`;
+  // Player-friendly "level" — SPEED+1 and ESCALATE+1 (both 1-based: they
+  // start at 0 internally), plain "S-E" with no label, right-justified
+  // against the far edge. e.g. a fresh game reads "1-1".
+  const level = `${game.speedLevel + 1}-${game.escalate + 1}`;
   const levelX = SCREEN_W - margin - textWidth(level);
   drawText(ctx, level, levelX, 2, "#ffffff", "left");
 }

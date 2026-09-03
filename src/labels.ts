@@ -14,7 +14,7 @@ export const LABELS = {
   /**
    * Running scoreboard along the top during play: a fist icon + N, a head
    * icon + N, an EXPL missile icon + N, then a plain "S-E" level readout
-   * (SPEED+1 - ESCALATE, no label) right-justified at the far edge (see
+   * (SPEED+1 - ESCALATE+1, no label) right-justified at the far edge (see
    * hud.ts drawHud). `punch` / `miss` / `explode` no longer appear as text
    * there — they're read here only for the kill-screen counters (ROT13'd
    * there), which still label everything by these strings.
