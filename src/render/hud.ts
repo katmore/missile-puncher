@@ -105,7 +105,7 @@ export function drawHud(
   drawPnchBadge(ctx, assets, game, pnchX, pnchY, "#ffffff");
 
   const rest = [
-    `${h.explode}: ${game.deflects}`,
+    `${h.explode}: ${Math.max(0, CONFIG.limit_explode - game.deflects)}`,
     `${h.escalate}: ${game.escalate}`,
     `${h.speed}: ${game.speedLevel}`,
   ].join(h.sep);
