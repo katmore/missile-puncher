@@ -38,6 +38,11 @@ export class Audio {
   }
 
   private record(type: AudioEventType): void {
+    // `import.meta.env.DEV` is a build-time constant — Vite inlines it as
+    // `false` in a production build, and the minifier then dead-code-
+    // eliminates this whole block, so a real player's build pays nothing:
+    // no push/shift ever runs, `log` stays permanently empty.
+    if (!import.meta.env.DEV) return;
     this.log.push(type);
     if (this.log.length > 500) this.log.shift();
   }
