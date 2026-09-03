@@ -13,6 +13,9 @@ async function main(): Promise<void> {
   const screen = document.getElementById("game") as HTMLCanvasElement;
   const display = new Display(screen);
 
+  const versionEl = document.getElementById("version");
+  if (versionEl) versionEl.textContent = `build ${__BUILD_STAMP__}`;
+
   const input = new Input();
   input.attach();
 

@@ -95,6 +95,13 @@ export class Game {
   escalationMs = 0;
   /** ms elapsed since the puncher went down under fire (non-final MISS). */
   downedMs = 0;
+  /**
+   * Latches a punch pressed at any point during "downed" (even before the
+   * explosion animation finishes) so an early tap isn't silently dropped —
+   * it fires the moment `downedMs` clears `explosion_ms`, same as a tap
+   * timed exactly right would.
+   */
+  private downedPunchQueued = false;
   /** ms elapsed on the frozen TOO TIRED screen (PUNCH-limit stop). */
   tiredMs = 0;
 
@@ -125,6 +132,7 @@ export class Game {
     this.endMs = 0;
     this.escalationMs = 0;
     this.downedMs = 0;
+    this.downedPunchQueued = false;
     this.tiredMs = 0;
   }
 
@@ -424,6 +432,7 @@ export class Game {
     } else {
       // Otherwise the MISS aftermath: barrage-on-the-corpse until punch-out.
       this.downedMs = 0;
+      this.downedPunchQueued = false;
       this.scene = "downed";
     }
   }
@@ -460,11 +469,9 @@ export class Game {
    */
   private updateDowned(dtMs: number): void {
     this.downedMs += dtMs;
+    if (this.input.pressed("punch")) this.downedPunchQueued = true;
 
-    if (
-      this.downedMs > CONFIG.explosion_ms &&
-      this.input.pressed("punch")
-    ) {
+    if (this.downedMs > CONFIG.explosion_ms && this.downedPunchQueued) {
       this.returnToSelect();
       return;
     }

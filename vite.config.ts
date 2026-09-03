@@ -1,3 +1,4 @@
+import { execSync } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { defineConfig, type Plugin } from "vite";
@@ -6,6 +7,21 @@ import { viteSingleFile } from "vite-plugin-singlefile";
 const ROOT = __dirname;
 const ASSETS_DIR = resolve(ROOT, "src/assets");
 const CONFIG_FILE = resolve(ROOT, "src/config.ts");
+
+// A tiny "which build is this" stamp (portrait-only footer, see index.html /
+// main.ts) — the short commit hash a build was made from, so a redeployed
+// page is tellable from a stale cached one. Falls back gracefully outside a
+// git checkout (e.g. a source tarball).
+function buildStamp(): string {
+  try {
+    const sha = execSync("git rev-parse --short HEAD", { cwd: ROOT })
+      .toString()
+      .trim();
+    return sha;
+  } catch {
+    return "unknown";
+  }
+}
 
 function readBody(req: import("node:http").IncomingMessage): Promise<string> {
   return new Promise((ok) => {
@@ -169,6 +185,9 @@ const oneFile = process.env.SINGLEFILE === "1";
 
 export default defineConfig(({ command }) => ({
   base: "./",
+  define: {
+    __BUILD_STAMP__: JSON.stringify(buildStamp()),
+  },
   plugins: [
     spriteSaver(),
     configTuner(),
