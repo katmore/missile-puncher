@@ -39,7 +39,7 @@ export const CONFIG = {
   // --- Run-ending score limits (placeholder values, tune freely) ---
   limit_punch: 19, // PUNCH past this many -> TOO TIRED (run stops)
   limit_explode: 9, // EXPLODE (deflect) this many -> escalate a level
-  limit_miss: 3, // get hit this many times -> bad ending
+  limit_miss: 9, // get hit this many times -> bad ending
   escalation_screen_ms: 3000, // how long the CONGRATS interstitial holds
   end_prompt_delay: 3000, // ms before the BAD END "PUNCH" prompt shows / works
   tired_prompt_delay: 3000, // ms before the TOO TIRED "PUNCH" prompt shows / works

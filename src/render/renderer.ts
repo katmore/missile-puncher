@@ -122,21 +122,25 @@ export class Renderer {
 
     if (game.scene === "end") {
       drawEndScreen(ctx, this.clockMs, game.endMs);
+      drawHud(ctx, game);
       return;
     }
 
     if (game.scene === "tired") {
       drawTiredScreen(ctx, game, this.clockMs);
+      drawHud(ctx, game);
       return;
     }
 
     if (game.scene === "escalation") {
       drawEscalationScreen(ctx, this.clockMs);
+      drawHud(ctx, game);
       return;
     }
 
     if (game.scene === "downed") {
       drawDownedScreen(ctx, this.clockMs, game.downedMs);
+      drawHud(ctx, game);
       return;
     }
 
