@@ -193,12 +193,14 @@ export class Game {
     }
 
     // CONGRATS interstitial: holds a few seconds, then play resumes for the
-    // next escalation. Only EXPLODE resets; PUNCH / MISS / ESCALATE carry over.
+    // next escalation. EXPLODE and PUNCH both reset to full; MISS / ESCALATE
+    // / SPEED carry over.
     if (this.scene === "escalation") {
       this.escalationMs += dtMs;
       if (this.escalationMs >= CONFIG.escalation_screen_ms) {
         this.reset(); // also disarms the camp sequence for the new level
         this.deflects = 0;
+        this.punches = 0;
         this.scene = "play";
       }
       return;
@@ -370,6 +372,9 @@ export class Game {
       this.effects.triggerHit();
       this.audio.punchConnect();
       this.audio.reflect();
+      // A landed punch invigorates the Puncher — refund the PUNCH it cost,
+      // so only whiffed punches actually drain toward TOO TIRED.
+      this.punches--;
       return;
     }
     if (overlap(m.collider(), this.puncher.bodyCollider())) {

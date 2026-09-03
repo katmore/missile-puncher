@@ -103,9 +103,13 @@ describe("camp timer (armed)", () => {
   test("punching in place still accrues camp time", () => {
     const sim = armedSim(1);
     let punchedInPlace = false;
+    // A landed punch refunds itself, but these are pure whiffs (no missile to
+    // hit) — stop short of limit_punch so the run doesn't hit TOO TIRED
+    // before the camp timer gets a chance to accrue; the point here is just
+    // that being rooted mid-punch doesn't stall the anti-camp timer.
     sim.runUntil((v) => {
       if (v.puncher.state === "punch") punchedInPlace = true;
-      sim.harness.input.tap("punch");
+      if (v.scores.punches < CONFIG.limit_punch) sim.harness.input.tap("punch");
       return v.dropper !== null || v.scene !== "play";
     }, CONFIG.camp_time_ms + 6000);
     expect(punchedInPlace).toBe(true);
