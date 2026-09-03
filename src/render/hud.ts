@@ -173,7 +173,10 @@ export function drawHud(
   drawPnchBadge(ctx, assets, game, pnchX, pnchY, "#ffffff", barNumY);
 
   const explX = pnchX + pnchBadgeWidth(pnchRemaining(game)) + textWidth(h.sep);
-  const explY = Math.round((11 - MISSILE_CROP.h) / 2);
+  // One pixel above Math.round((11 - MISSILE_CROP.h) / 2) (which is 2): that
+  // formula's own rounding (11 - 8 doesn't split evenly) biases it a hair
+  // low. The number's position (barNumY) is unaffected by this.
+  const explY = 1;
   drawExplBadge(ctx, assets, game, explX, explY, "#ffffff", missileAnimMs, barNumY);
 
   // Player-friendly "level" — SPEED+1 (1-based: it starts at 0 internally)
