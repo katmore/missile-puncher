@@ -121,7 +121,7 @@ export class Game {
 
   constructor(
     private readonly input: Input,
-    private readonly audio: Audio,
+    readonly audio: Audio,
   ) {
     this.leftGender = this.rng.bool() ? "m" : "f";
     this.gender = this.leftGender;

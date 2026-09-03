@@ -1,5 +1,15 @@
 import { CONFIG } from "../config";
 
+/** Every sound the game can trigger — see `Audio.calls()`. */
+export type AudioEventType =
+  | "punchConnect"
+  | "explosion"
+  | "campWarnStart"
+  | "campWarnStop"
+  | "dropWhineStart"
+  | "dropWhineStop"
+  | "reflect";
+
 /**
  * Tiny WebAudio synth. No samples — every sound is generated. The context is
  * created lazily and resumed on the first key press (autoplay policy).
@@ -7,6 +17,30 @@ import { CONFIG } from "../config";
 export class Audio {
   private ctx: AudioContext | null = null;
   private master: GainNode | null = null;
+
+  /**
+   * Every sfx call, logged regardless of whether a real `AudioContext` is
+   * unlocked — `harness/sim.ts` constructs `Audio` without ever calling
+   * `unlock()` (headless tests have no real WebAudio), so this is how a
+   * test asserts "the right sound fired at the right moment" without
+   * needing actual audio playback. Recorded at the top of each method,
+   * before any ctx / feature-flag / dedup guard — this reflects what the
+   * game *asked for*, not whether it was audible.
+   */
+  private log: AudioEventType[] = [];
+
+  calls(): readonly AudioEventType[] {
+    return this.log;
+  }
+
+  clearCalls(): void {
+    this.log = [];
+  }
+
+  private record(type: AudioEventType): void {
+    this.log.push(type);
+    if (this.log.length > 500) this.log.shift();
+  }
 
   unlock(): void {
     if (this.ctx) {
@@ -34,6 +68,7 @@ export class Audio {
   }
 
   punchConnect(): void {
+    this.record("punchConnect");
     if (!this.ctx || !this.master) return;
     const t = this.ctx.currentTime;
     const g = this.ctx.createGain();
@@ -59,6 +94,7 @@ export class Audio {
   }
 
   explosion(): void {
+    this.record("explosion");
     if (!this.ctx || !this.master) return;
     const t = this.ctx.currentTime;
     const src = this.ctx.createBufferSource();
@@ -84,6 +120,7 @@ export class Audio {
 
   /** The pre-drop "incoming" warble — a high tremolo tone with a pitch wobble. */
   campWarnStart(): void {
+    this.record("campWarnStart");
     if (
       !CONFIG.sfx_camp_warn_enabled ||
       !this.ctx ||
@@ -123,6 +160,7 @@ export class Audio {
 
   /** Stop the warble (dropper spawned, or the player moved off the spot). */
   campWarnStop(): void {
+    this.record("campWarnStop");
     if (!this.warnNodes || !this.ctx) return;
     const t = this.ctx.currentTime;
     const { osc, lfo, g } = this.warnNodes;
@@ -136,6 +174,7 @@ export class Audio {
 
   /** Start the falling-dropper whine — a pitch sweeping down over the descent. */
   dropWhineStart(): void {
+    this.record("dropWhineStart");
     if (!CONFIG.sfx_drop_enabled || !this.ctx || !this.master || this.dropOsc) {
       return;
     }
@@ -158,6 +197,7 @@ export class Audio {
 
   /** Stop the whine (dropper landed / was cleared). Safe to call any time. */
   dropWhineStop(): void {
+    this.record("dropWhineStop");
     if (!this.dropOsc || !this.ctx || !this.dropGain) return;
     const t = this.ctx.currentTime;
     this.dropGain.gain.cancelScheduledValues(t);
@@ -169,6 +209,7 @@ export class Audio {
   }
 
   reflect(): void {
+    this.record("reflect");
     if (!this.ctx || !this.master) return;
     const t = this.ctx.currentTime;
     const g = this.ctx.createGain();

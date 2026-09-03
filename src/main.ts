@@ -54,6 +54,16 @@ async function main(): Promise<void> {
     harness.bindLoop(loop);
     onFixedStep = (dt) => harness.tick(dt);
 
+    // `?sound=1` auto-unlocks audio on load. Normal play never needs this —
+    // the real first keypress/tap already unlocks it — but a bot-driven
+    // session (harness.runBot()) never sends a real input event at all, so
+    // audio.unlock() otherwise never fires and every sfx call is a silent
+    // no-op. Meant for driving the bot with real sound on, e.g. recording a
+    // playthrough. (A real browser's autoplay policy may still hold actual
+    // playback muted until the tab gets some real interaction — this just
+    // ensures the game's own side of the handshake happens.)
+    if (new URLSearchParams(location.search).has("sound")) audio.unlock();
+
     Object.assign(window as unknown as Record<string, unknown>, {
       __game: game,
       __renderer: renderer,
