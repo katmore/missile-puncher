@@ -366,44 +366,57 @@ export function drawDownedScreen(
 }
 
 /**
- * PUNCH-limit stop. Play frame frozen + dimmed (like BAD END), with the
- * ESCALATE / RUIN / MISS tally kept on screen. A blinking PUNCH prompt appears
- * at the bottom after `tired_prompt_delay`.
+ * PUNCH-limit stop. No escape hatch this time — the world stays live (the
+ * puncher just can't move) while "TOO TIRED" blinks and a laser locks onto
+ * the puncher's now-fixed x. Once the laser finishes, `game.dropper` spawns
+ * and falls exactly like the anti-camp hazard, rendered by the ordinary
+ * drawDropper() call — nothing more to do here once it exists, it always
+ * connects since the puncher can't dodge. That hit runs the normal MISS
+ * path (registerBodyHit): a life spent, not a reset to the level's start.
  */
-export function drawTiredScreen(
+export function drawTiredStrike(
   ctx: CanvasRenderingContext2D,
   game: Game,
   clockMs: number,
-  assets: Assets,
 ): void {
-  ctx.setTransform(1, 0, 0, 1, 0, 0);
-  ctx.fillStyle = "rgba(6,6,10,0.6)";
-  ctx.fillRect(0, 0, SCREEN_W, SCREEN_H);
+  if (game.dropper) return; // the falling hazard speaks for itself
 
   const cx = SCREEN_W / 2;
-  drawText(
-    ctx,
-    LABELS.tired.title,
-    cx,
-    Math.round(SCREEN_H / 2 - 12),
-    "#ffffff",
-    "center",
-  );
-
-  const h = LABELS.hud;
-  const escText = `${h.escalate}: ${game.escalate}`;
-  const remaining = CONFIG.limit_miss - game.hits;
-  const tallyY = Math.round(SCREEN_H / 2 + 2);
-  const totalW = textWidth(escText) + textWidth(h.sep) + dedBadgeWidth(remaining);
-  const startX = Math.round(cx - totalW / 2);
-  drawText(ctx, escText, startX, tallyY, "#c9ccd6", "left");
-  const badgeX = startX + textWidth(escText) + textWidth(h.sep);
-  const badgeY = tallyY - Math.round((HEAD_CROP.h - GLYPH_H) / 2);
-  drawDedBadge(ctx, assets, game, badgeX, badgeY, "#c9ccd6");
-
-  if (game.tiredMs >= CONFIG.tired_prompt_delay) {
-    blinkPrompt(ctx, LABELS.tired.prompt, clockMs);
+  if (Math.floor(clockMs / 350) % 2 === 0) {
+    drawText(ctx, LABELS.tired.title, cx, Math.round(SCREEN_H / 2 - 40), "#ffffff", "center");
   }
+
+  const laserT = Math.max(
+    0,
+    Math.min(1, (game.tiredMs - CONFIG.tired_warn_ms) / CONFIG.tired_laser_ms),
+  );
+  if (laserT <= 0) return;
+
+  const x = Math.round(game.puncher.x + CONFIG.puncher_width / 2) + 0.5;
+  const apexY = 13;
+  const emitterH = 6;
+  const topY = apexY + emitterH;
+  const gy = CONFIG.ground_y;
+  const beamEndY = topY + (gy - topY) * laserT;
+
+  ctx.fillStyle = "rgba(255,64,52,0.92)";
+  ctx.beginPath();
+  ctx.moveTo(x - 4, apexY);
+  ctx.lineTo(x + 4, apexY);
+  ctx.lineTo(x, topY);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.strokeStyle = "rgba(255,90,70,0.9)";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(x, topY);
+  ctx.lineTo(x, beamEndY);
+  ctx.stroke();
+
+  const pulse = 0.55 + 0.45 * Math.sin(clockMs / 55);
+  ctx.fillStyle = `rgba(255,90,70,${pulse.toFixed(3)})`;
+  ctx.fillRect(x - 1.5, beamEndY - 1.5, 3, 3);
 }
 
 /**

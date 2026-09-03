@@ -11,7 +11,7 @@ import {
   drawHud,
   drawKillVars,
   drawStartScreen,
-  drawTiredScreen,
+  drawTiredStrike,
   layoutKillVars,
   type KillVar,
 } from "./hud";
@@ -74,10 +74,7 @@ export class Renderer {
 
     const kill = game.scene === "kill";
     const frozen =
-      kill ||
-      game.scene === "end" ||
-      game.scene === "escalation" ||
-      game.scene === "tired";
+      kill || game.scene === "end" || game.scene === "escalation";
     this.clockMs += realDtMs;
     if (!frozen) this.missileAnimMs += realDtMs;
     if (!kill) this.killLayout = null;
@@ -95,9 +92,10 @@ export class Renderer {
       return;
     }
 
-    // Play, kill and end all render the world. On kill/end it is frozen
-    // (game.update stops); kill additionally corrupts it. No screen shake /
-    // flash / shockwave — see the note in game/effects.ts.
+    // Play, kill, end, and tired all render the world. On kill/end it is
+    // frozen (game.update stops); kill additionally corrupts it. tired stays
+    // live (the puncher just doesn't move) so its laser + dropper strike can
+    // animate. No screen shake / flash / shockwave — see game/effects.ts.
     const worldDt = frozen ? 0 : realDtMs;
     const drawMissile = () => this.drawMissile(ctx, assets, game);
     const drawPuncher = () => this.drawPuncher(ctx, assets, game, worldDt);
@@ -127,7 +125,7 @@ export class Renderer {
     }
 
     if (game.scene === "tired") {
-      drawTiredScreen(ctx, game, this.clockMs, assets);
+      drawTiredStrike(ctx, game, this.clockMs);
       drawHud(ctx, game, assets);
       return;
     }

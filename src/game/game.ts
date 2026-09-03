@@ -212,21 +212,29 @@ export class Game {
       return;
     }
 
-    // TOO TIRED: PUNCH limit stopped the run. Frozen + dimmed like BAD END,
-    // shows the ESCALATE / MISS tally. After `tired_prompt_delay` a blinking
-    // prompt lets the player rest and continue: PUNCH -> 0, EXPLODE -> 0
-    // (start-of-level). ESCALATE / SPEED / MISS all carry on unchanged — resting
-    // does not cost you a level, it just puts you at the start of this one.
+    // TOO TIRED: PUNCH limit stopped the run. No escape this time — the
+    // puncher is immobilized (no move, no punch). "TOO TIRED" blinks for
+    // tired_warn_ms, then a laser locks on over tired_laser_ms, then a
+    // Dropper falls on the puncher's now-fixed x. It always connects — the
+    // puncher can't dodge — and that hit runs the normal registerBodyHit()
+    // path: MISS +1, downed / BAD END as usual. EXPLODE is untouched (no
+    // more "back to the start of the level"); PUNCH resets once the hit
+    // lands so the next attempt isn't stuck re-triggering this immediately.
     if (this.scene === "tired") {
       this.tiredMs += dtMs;
-      if (
-        this.tiredMs > CONFIG.tired_prompt_delay &&
-        (this.input.pressed("punch") || this.input.pressed("reset"))
-      ) {
-        this.punches = 0;
-        this.deflects = 0;
-        this.returnToSelect();
+
+      if (!this.dropper) {
+        if (this.tiredMs >= CONFIG.tired_warn_ms + CONFIG.tired_laser_ms) {
+          this.dropper = new Dropper(this.puncher.x + CONFIG.puncher_width / 2);
+        }
+        return;
       }
+
+      this.dropper.update(dtMs);
+      this.syncDropAudio();
+      if (this.dropper.state === "falling") this.resolveDropper();
+      if (this.scene === "tired") return; // still falling, hasn't connected yet
+      this.punches = 0; // life spent; fresh stamina for the next attempt
       return;
     }
 
@@ -277,12 +285,13 @@ export class Game {
       this.scene = "escalation";
       return;
     }
-    // One past the punch limit -> the run stops: TOO TIRED (frozen, like BAD
-    // END). ESCALATE / RUIN / MISS are kept. (The kill-screen mechanic still
-    // exists in code but nothing routes to it now.)
+    // One past the punch limit -> TOO TIRED: an inevitable forced hit, not
+    // a game over (see the "tired" branch above). (The kill-screen mechanic
+    // still exists in code but nothing routes to it now.)
     if (this.punches > CONFIG.limit_punch) {
       this.effects.clear();
       this.clearDropper();
+      this.puncher.state = "idle"; // a clean stance for the immobilized wait
       this.tiredMs = 0;
       this.scene = "tired";
       return;

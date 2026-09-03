@@ -77,7 +77,8 @@ export const GROUPS: Group[] = [
       { path: ["limit_miss"], label: "MISS → bad end", control: n(1, 10, 1) },
       { path: ["escalation_screen_ms"], label: "escalation screen", control: ms(8000) },
       { path: ["end_prompt_delay"], label: "bad-end prompt delay", control: ms(8000) },
-      { path: ["tired_prompt_delay"], label: "tired prompt delay", control: ms(8000) },
+      { path: ["tired_warn_ms"], label: "too-tired blink before laser", control: ms(8000) },
+      { path: ["tired_laser_ms"], label: "too-tired laser lock-on", control: ms(8000) },
     ],
   },
   {

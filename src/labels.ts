@@ -55,13 +55,12 @@ export const LABELS = {
   },
 
   /**
-   * PUNCH-limit stop — frozen frame like BAD END. `title` is the headline;
-   * `prompt` is the blinking bottom call-to-action that appears after
-   * `tired_prompt_delay`. Edit freely (UPPERCASE + digits + `: . ! - _ = #`).
+   * PUNCH-limit stop — the blinking centre-screen line while the puncher is
+   * immobilized and the strike locks on (see hud.ts drawTiredStrike). Edit
+   * freely (UPPERCASE + digits + `: . ! - _ = #`).
    */
   tired: {
     title: "TOO TIRED",
-    prompt: "PUNCH!",
   },
 
   /** Escalation interstitial — steady line, then a blinking line. */

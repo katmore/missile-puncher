@@ -42,7 +42,14 @@ export const CONFIG = {
   limit_miss: 9, // get hit this many times -> bad ending
   escalation_screen_ms: 3000, // how long the CONGRATS interstitial holds
   end_prompt_delay: 3000, // ms before the BAD END "PUNCH" prompt shows / works
-  tired_prompt_delay: 3000, // ms before the TOO TIRED "PUNCH" prompt shows / works
+
+  // --- TOO TIRED: an inevitable punishment, not an escape hatch. The
+  //     puncher is immobilized; "TOO TIRED" blinks for tired_warn_ms, then a
+  //     laser locks on over tired_laser_ms, then a Dropper falls on the
+  //     puncher's fixed x and always connects (see Game.update's "tired"
+  //     branch + hud.ts drawTiredStrike). ---
+  tired_warn_ms: 2200, // ms "TOO TIRED" blinks before the laser starts
+  tired_laser_ms: 1200, // ms the laser takes to lock on before the drop
 
   // --- Feedback. Deliberately minimal: a brief hit-stop + a plain expanding
   //     explosion circle. NO shake / flash / shockwave / particles — they were
