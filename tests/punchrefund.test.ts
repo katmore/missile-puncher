@@ -42,6 +42,23 @@ describe("PUNCH refund", () => {
     expect(sim.view().scores.punches).toBe(0); // -> displays as the full 5
   });
 
+  test("a body hit (MISS) resets PUNCH to full, like an escalation", () => {
+    const savedSpawnDelay = CONFIG.missile_spawn_delay;
+    CONFIG.missile_spawn_delay = 9_999_999; // isolate the anti-camp dropper hit
+    try {
+      const sim = makeSim({ seed: 1, scene: "play" });
+      sim.game.campArmed = true;
+      sim.game.punches = 2; // some whiffs already spent before the hit lands
+
+      sim.runUntil((v) => v.scores.hits > 0 || v.scene !== "play", 20_000);
+      expect(sim.view().scores.hits).toBe(1);
+      expect(sim.view().scene).toBe("downed");
+      expect(sim.view().scores.punches).toBe(0); // -> displays as the full 5
+    } finally {
+      CONFIG.missile_spawn_delay = savedSpawnDelay;
+    }
+  });
+
   test("the throw that pushes PUNCH over the limit doesn't trigger TOO TIRED mid-swing", () => {
     const sim = makeSim({ seed: 5, scene: "play" });
     const g = sim.game;

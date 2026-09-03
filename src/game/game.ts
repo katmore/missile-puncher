@@ -441,6 +441,7 @@ export class Game {
     this.effects.triggerExplosion();
     this.audio.explosion();
     this.hits++;
+    this.punches = 0; // death refills PUNCH too, same as an escalation
     this.clearDropper();
     if (this.hits >= CONFIG.limit_miss) {
       // Final miss -> straight to BAD END, no barrage.
