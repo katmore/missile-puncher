@@ -136,18 +136,26 @@ export function drawFist(
 }
 
 /**
- * Crop of the missile sheet's exhaust frame (frame 1 of 3 — mid-flicker,
- * has the exhaust flame), trimmed to its non-transparent bounds. Used by
- * the HUD's EXPL indicator instead of the "EXPL: N" text it replaced. The
- * sheet's missiles point left by default (see renderer.ts's `flip` note),
- * so drawMissileIcon always mirrors this — nose right, exhaust trailing
- * out the left, matching reading order (icon, then its number).
+ * The missile sheet's exhaust frame (frame 1 of 3 — mid-flicker, has the
+ * exhaust flame), composited from two source slices that skip 2 columns of
+ * its flat midsection shaft (that run is a uniform repeating pattern, so
+ * removing a couple of its columns is seamless) — same nose, fin, and
+ * exhaust flame, just a couple pixels shorter so it sits more snugly in
+ * the HUD bar. Used by the HUD's EXPL indicator instead of the "EXPL: N"
+ * text it replaced. The sheet's missiles point left by default (see
+ * renderer.ts's `flip` note), so drawMissileIcon always mirrors this —
+ * nose right, exhaust trailing out the left, matching reading order (icon,
+ * then its number).
  */
+const MISSILE_FRAME1_X = SHEETS.missile.cellW;
+const MISSILE_NOSE = { x: MISSILE_FRAME1_X + 1, w: 11 } as const; // nose + most of the shaft
+const MISSILE_TAIL = { x: MISSILE_FRAME1_X + 14, w: 9 } as const; // rest of shaft + fin + flame
+const MISSILE_Y = 2;
+const MISSILE_H = 8;
+
 export const MISSILE_CROP = {
-  x: SHEETS.missile.cellW + 1, // frame 1, trimmed left edge
-  y: 2,
-  w: 22,
-  h: 8,
+  w: MISSILE_NOSE.w + MISSILE_TAIL.w,
+  h: MISSILE_H,
 } as const;
 
 export function drawMissileIcon(
@@ -156,13 +164,34 @@ export function drawMissileIcon(
   dx: number,
   dy: number,
 ): void {
-  const { x, y, w, h } = MISSILE_CROP;
+  const { w, h } = MISSILE_CROP;
   const roundedX = Math.round(dx);
   const roundedY = Math.round(dy);
   ctx.save();
   ctx.translate(roundedX + w, roundedY);
   ctx.scale(-1, 1);
-  ctx.drawImage(sheet.img, x, y, w, h, 0, 0, w, h);
+  ctx.drawImage(
+    sheet.img,
+    MISSILE_NOSE.x,
+    MISSILE_Y,
+    MISSILE_NOSE.w,
+    h,
+    0,
+    0,
+    MISSILE_NOSE.w,
+    h,
+  );
+  ctx.drawImage(
+    sheet.img,
+    MISSILE_TAIL.x,
+    MISSILE_Y,
+    MISSILE_TAIL.w,
+    h,
+    MISSILE_NOSE.w,
+    0,
+    MISSILE_TAIL.w,
+    h,
+  );
   ctx.restore();
 }
 
