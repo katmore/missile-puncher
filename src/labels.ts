@@ -12,11 +12,11 @@
 
 export const LABELS = {
   /**
-   * Running scoreboard along the top during play, rendered as
-   *   `${punch}: N${sep}${explode}: N${sep}${miss}: N${sep}${escalate}: N${sep}${speed}: N`
-   * The whole line sits near the 320 px width — long words or a wide `sep`
-   * will clip. `punch` / `explode` / `miss` also label the kill-screen
-   * counters (ROT13'd there).
+   * Running scoreboard along the top during play: a fist icon + N, a head
+   * icon + N, then `${explode}: N${sep}${escalate}: N${sep}${speed}: N` as
+   * plain text (see hud.ts drawHud). `punch` / `miss` no longer appear as
+   * text there — they're read here only for the kill-screen counters
+   * (ROT13'd there), which still label everything by these strings.
    */
   hud: {
     punch: "PNCH", //     counts DOWN from limit_punch to 0 (kill-screen limit)

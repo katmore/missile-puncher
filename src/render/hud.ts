@@ -6,9 +6,11 @@ import { SHEETS } from "./sheets";
 import { KILL_DISTORT_CYCLE_MS } from "../killscreen";
 import { GLYPH_H, drawText, textWidth } from "./font";
 import {
+  FIST_CROP,
   HEAD_CROP,
   PUNCHER_CLIPS,
   drawCell,
+  drawFist,
   drawHead,
   frameIndex,
   puncherSheet,
@@ -24,11 +26,26 @@ const rot13 = (s: string): string =>
 /** the 5 colours the overflowed variable endlessly cycles through */
 const DISTORT_COLORS = ["#ff3b6b", "#22e0ff", "#ffe14d", "#8cff5a", "#ff8a2a"];
 
-const DED_GAP = 2; // px between the head icon and its number
+const BADGE_GAP = 2; // px between an icon and its number
 
-/** Pixel width of the head-icon + number combo — for layout / centering. */
-function dedBadgeWidth(remaining: number): number {
-  return HEAD_CROP.w + DED_GAP + textWidth(String(remaining));
+/** Pixel width of an icon + number combo — for layout / centering. */
+function badgeWidth(iconW: number, value: number): number {
+  return iconW + BADGE_GAP + textWidth(String(value));
+}
+
+/** The number half of an icon badge, right of an icon already drawn at (x, y). */
+function drawBadgeNumber(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  iconW: number,
+  iconH: number,
+  value: number,
+  color: string,
+): void {
+  const numX = x + iconW + BADGE_GAP;
+  const numY = y + Math.round((iconH - GLYPH_H) / 2);
+  drawText(ctx, String(value), numX, numY, color, "left");
 }
 
 /**
@@ -45,10 +62,30 @@ function drawDedBadge(
 ): void {
   drawHead(ctx, puncherSheet(assets, game.gender), x, y);
   const remaining = CONFIG.limit_miss - game.hits;
-  const numX = x + HEAD_CROP.w + DED_GAP;
-  const numY = y + Math.round((HEAD_CROP.h - GLYPH_H) / 2);
-  drawText(ctx, String(remaining), numX, numY, color, "left");
+  drawBadgeNumber(ctx, x, y, HEAD_CROP.w, HEAD_CROP.h, remaining, color);
 }
+const dedBadgeWidth = (remaining: number): number =>
+  badgeWidth(HEAD_CROP.w, remaining);
+
+/**
+ * The current puncher's punching arm + fist, plus remaining-punches-before-
+ * TOO-TIRED, replacing the old "PNCH: N" text. `x, y` is the icon's
+ * top-left corner.
+ */
+function drawPnchBadge(
+  ctx: CanvasRenderingContext2D,
+  assets: Assets,
+  game: Game,
+  x: number,
+  y: number,
+  color: string,
+): void {
+  drawFist(ctx, puncherSheet(assets, game.gender), x, y);
+  const remaining = Math.max(0, CONFIG.limit_punch - game.punches);
+  drawBadgeNumber(ctx, x, y, FIST_CROP.w, FIST_CROP.h, remaining, color);
+}
+const pnchBadgeWidth = (remaining: number): number =>
+  badgeWidth(FIST_CROP.w, remaining);
 
 /** Running scoreboard, always visible during play. */
 export function drawHud(
@@ -62,15 +99,19 @@ export function drawHud(
 
   const margin = 2;
   drawDedBadge(ctx, assets, game, margin, 0, "#ffffff");
+  const pnchX =
+    margin + dedBadgeWidth(CONFIG.limit_miss - game.hits) + textWidth(h.sep);
+  drawPnchBadge(ctx, assets, game, pnchX, 0, "#ffffff");
 
   const rest = [
-    `${h.punch}: ${Math.max(0, CONFIG.limit_punch - game.punches)}`,
     `${h.explode}: ${game.deflects}`,
     `${h.escalate}: ${game.escalate}`,
     `${h.speed}: ${game.speedLevel}`,
   ].join(h.sep);
   const restX =
-    margin + dedBadgeWidth(CONFIG.limit_miss - game.hits) + textWidth(h.sep);
+    pnchX +
+    pnchBadgeWidth(Math.max(0, CONFIG.limit_punch - game.punches)) +
+    textWidth(h.sep);
   drawText(ctx, rest, restX, 2, "#ffffff", "left");
 }
 
