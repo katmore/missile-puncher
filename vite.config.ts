@@ -178,19 +178,41 @@ function configTuner(): Plugin {
   };
 }
 
+/**
+ * Writes `dist/version.txt` — the same short commit hash baked into
+ * `__BUILD_STAMP__` — as a tiny standalone file the running page can poll
+ * with `cache: "no-store"` to notice a new deploy (see `main.ts`). It has to
+ * live outside `index.html` / the JS bundle: those are exactly what a stale
+ * cache (GitHub Pages' CDN, Safari, or — worst offender — an iOS "Add to
+ * Home Screen" standalone app, which barely re-checks at all) is serving
+ * from, so re-fetching them proves nothing.
+ */
+function versionFile(stamp: string): Plugin {
+  return {
+    name: "version-file",
+    apply: "build",
+    generateBundle() {
+      this.emitFile({ type: "asset", fileName: "version.txt", source: stamp });
+    },
+  };
+}
+
 // `SINGLEFILE=1 vite build` (→ `npm run demo`) inlines everything — JS, CSS and
 // the sprite PNGs (as data URIs) — into one self-contained `dist/index.html`
 // you can email, drop on itch.io / Netlify, or open anywhere.
 const oneFile = process.env.SINGLEFILE === "1";
 
+const stamp = buildStamp();
+
 export default defineConfig(({ command }) => ({
   base: "./",
   define: {
-    __BUILD_STAMP__: JSON.stringify(buildStamp()),
+    __BUILD_STAMP__: JSON.stringify(stamp),
   },
   plugins: [
     spriteSaver(),
     configTuner(),
+    versionFile(stamp),
     ...(oneFile ? [viteSingleFile()] : []),
   ],
   server: { open: true },

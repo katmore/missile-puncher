@@ -9,6 +9,12 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <!-- Best-effort against stale caching (mainly iOS "Add to Home Screen"
+         standalone apps, which barely re-check on their own — see
+         engine/updateCheck.ts for the real fix, this is just a cheap extra). -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <title>Missile Puncher — Prototype</title>
     <style>
       html,

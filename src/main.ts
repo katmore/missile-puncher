@@ -5,6 +5,7 @@ import { Display } from "./engine/canvas";
 import { Input } from "./engine/input";
 import { startLoop } from "./engine/loop";
 import { attachTouchControls } from "./engine/touch";
+import { watchForNewBuild } from "./engine/updateCheck";
 import { Game } from "./game/game";
 import { invalidateBackground } from "./render/background";
 import { Renderer } from "./render/renderer";
@@ -15,6 +16,8 @@ async function main(): Promise<void> {
 
   const versionEl = document.getElementById("version");
   if (versionEl) versionEl.textContent = `build ${__BUILD_STAMP__}`;
+  // version.txt only exists in a real `vite build` output, not the dev server.
+  if (!import.meta.env.DEV) watchForNewBuild(__BUILD_STAMP__);
 
   const input = new Input();
   input.attach();
