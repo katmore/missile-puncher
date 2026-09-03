@@ -136,11 +136,19 @@ export function drawFist(
 }
 
 /**
- * Crop of the missile sheet's first (no-exhaust) frame, trimmed to its
- * non-transparent bounds. Used by the HUD's EXPL indicator instead of the
- * "EXPL: N" text it replaced.
+ * Crop of the missile sheet's exhaust frame (frame 1 of 3 — mid-flicker,
+ * has the exhaust flame), trimmed to its non-transparent bounds. Used by
+ * the HUD's EXPL indicator instead of the "EXPL: N" text it replaced. The
+ * sheet's missiles point left by default (see renderer.ts's `flip` note),
+ * so drawMissileIcon always mirrors this — nose right, exhaust trailing
+ * out the left, matching reading order (icon, then its number).
  */
-export const MISSILE_CROP = { x: 1, y: 2, w: 20, h: 8 } as const;
+export const MISSILE_CROP = {
+  x: SHEETS.missile.cellW + 1, // frame 1, trimmed left edge
+  y: 2,
+  w: 22,
+  h: 8,
+} as const;
 
 export function drawMissileIcon(
   ctx: CanvasRenderingContext2D,
@@ -149,7 +157,13 @@ export function drawMissileIcon(
   dy: number,
 ): void {
   const { x, y, w, h } = MISSILE_CROP;
-  ctx.drawImage(sheet.img, x, y, w, h, Math.round(dx), Math.round(dy), w, h);
+  const roundedX = Math.round(dx);
+  const roundedY = Math.round(dy);
+  ctx.save();
+  ctx.translate(roundedX + w, roundedY);
+  ctx.scale(-1, 1);
+  ctx.drawImage(sheet.img, x, y, w, h, 0, 0, w, h);
+  ctx.restore();
 }
 
 export function drawCell(

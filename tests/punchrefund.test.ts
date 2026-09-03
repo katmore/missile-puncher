@@ -41,4 +41,32 @@ describe("PUNCH refund", () => {
 
     expect(sim.view().scores.punches).toBe(0); // -> displays as the full 5
   });
+
+  test("the throw that pushes PUNCH over the limit doesn't trigger TOO TIRED mid-swing", () => {
+    const sim = makeSim({ seed: 5, scene: "play" });
+    const g = sim.game;
+
+    // One whiff away from the limit, then the throw that crosses it.
+    g.puncher.state = "punch";
+    g.puncher.phase = "startup";
+    g.puncher.phaseTimer = CONFIG.punch_startup;
+    g.punches = CONFIG.limit_punch + 1;
+
+    // Still mid-swing (well inside the startup window) — held off, since
+    // this exact swing might still land and refund itself.
+    sim.step(3);
+    expect(sim.view().scene).toBe("play");
+
+    // The swing lands: refunded back under the limit, resolved to idle.
+    g.punches = CONFIG.limit_punch;
+    g.puncher.state = "idle";
+    sim.step();
+    expect(sim.view().scene).toBe("play");
+
+    // A genuine whiff (never refunded) still triggers it once resolved.
+    g.punches = CONFIG.limit_punch + 1;
+    g.puncher.state = "idle";
+    sim.step();
+    expect(sim.view().scene).toBe("tired");
+  });
 });

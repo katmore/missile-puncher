@@ -289,8 +289,12 @@ export class Game {
     }
     // One past the punch limit -> TOO TIRED: an inevitable forced hit, not
     // a game over (see the "tired" branch above). (The kill-screen mechanic
-    // still exists in code but nothing routes to it now.)
-    if (this.punches > CONFIG.limit_punch) {
+    // still exists in code but nothing routes to it now.) Held off while a
+    // swing is still in flight (state === "punch") — the throw that pushes
+    // punches over the limit might still land and refund itself moments
+    // later; only a swing that finishes as a confirmed whiff should trigger
+    // this, never the throw itself.
+    if (this.punches > CONFIG.limit_punch && this.puncher.state !== "punch") {
       this.effects.clear();
       this.clearDropper();
       this.puncher.state = "idle"; // a clean stance for the immobilized wait
