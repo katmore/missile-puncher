@@ -17,6 +17,19 @@
     <meta http-equiv="Expires" content="0" />
     <title>Missile Puncher — Prototype</title>
     <style>
+      /* No text on this page is ever meant to be selected — it's a canvas
+         game, not content. Without this, a mistimed tap (esp. iOS Safari)
+         can land as a long-press-select on the hint/build-stamp text
+         instead of a punch, highlighting it blue and eating the input. */
+      html,
+      body,
+      * {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        -webkit-touch-callout: none;
+      }
       html,
       body {
         margin: 0;
@@ -42,7 +55,6 @@
         bottom: 6px;
         font: 11px/1.4 ui-monospace, monospace;
         color: #55585f;
-        user-select: none;
         transition: opacity 0.6s;
       }
       #hint.faded {
@@ -61,7 +73,6 @@
         text-align: center;
         font: 9px/1.4 ui-monospace, monospace;
         color: #3a3d44;
-        user-select: none;
         pointer-events: none;
       }
       @media (orientation: portrait) {
