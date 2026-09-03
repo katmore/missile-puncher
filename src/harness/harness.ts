@@ -68,8 +68,23 @@ export class Harness {
   tick(dtMs: number): void {
     this.simMs += dtMs;
     const v = readView(this.game);
+    const prevScene = this.prev?.scene;
     this.detectEvents(v);
     this.prev = v;
+
+    // A scene change is always grounds for a fresh punch/reset edge, even
+    // if the bot's `punch` also read `true` on the last tick of the scene
+    // it just left (e.g. the punch that exits DOWNED and the punch that
+    // starts PLAY from SELECT land on consecutive ticks — two different
+    // intents that both happen to be `true`). Without this the debounce
+    // below sees one continuous hold across the boundary and only taps
+    // once, leaving a menu-scene bot's very next tap permanently
+    // swallowed (`select`'s `punch` in particular has no threshold of its
+    // own to naturally re-arm it, unlike `downed` / `end`).
+    if (v.scene !== prevScene) {
+      this.botPrevPunch = false;
+      this.botPrevReset = false;
+    }
 
     if (this.bot) this.applyAction(this.bot.decide(v, dtMs));
   }

@@ -50,6 +50,19 @@ describe("bots vs ESCALATE tiers", () => {
     sim.runUntil((v) => v.scores.hits > 0, 20_000);
     expect(sim.view().scores.hits).toBeGreaterThan(0);
   });
+
+  test("a bot punches through the select screen every time it returns there, not just the first", () => {
+    // idle never dodges or punches during play, so it dies again and again
+    // — each death cycles play -> downed -> select -> play. select's punch
+    // is a bare `true` every tick with no edge of its own (unlike downed /
+    // end, which gate on a time threshold), so the harness's tap-debounce
+    // used to get stuck sitting on `true` after the first successful tap,
+    // leaving the bot frozen on select forever from its second visit on.
+    const sim = makeSim({ seed: 1, scene: "play" });
+    sim.bot("idle");
+    sim.runUntil((v) => v.scores.hits >= 3, 40_000);
+    expect(sim.view().scores.hits).toBeGreaterThanOrEqual(3);
+  });
 });
 
 describe("SPEED score", () => {
