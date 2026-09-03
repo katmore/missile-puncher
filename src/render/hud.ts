@@ -367,21 +367,37 @@ export function drawDownedScreen(
 
 /**
  * PUNCH-limit stop. No escape hatch this time — the world stays live (the
- * puncher just can't move) while "TOO TIRED" blinks and a laser locks onto
- * the puncher's now-fixed x. Once the laser finishes, `game.dropper` spawns
- * and falls exactly like the anti-camp hazard, rendered by the ordinary
- * drawDropper() call — nothing more to do here once it exists, it always
- * connects since the puncher can't dodge. That hit runs the normal MISS
- * path (registerBodyHit): a life spent, not a reset to the level's start.
+ * puncher just can't move) while a steady fist-badge (at 0) sits over the
+ * blinking "TOO TIRED" text, and a laser locks onto the puncher's now-fixed
+ * x. Once the laser finishes, `game.dropper` spawns and falls exactly like
+ * the anti-camp hazard, rendered by the ordinary drawDropper() call —
+ * nothing more to do here once it exists, it always connects since the
+ * puncher can't dodge. That hit runs the normal MISS path
+ * (registerBodyHit): a life spent, not a reset to the level's start.
  */
 export function drawTiredStrike(
   ctx: CanvasRenderingContext2D,
   game: Game,
   clockMs: number,
+  assets: Assets,
 ): void {
   if (game.dropper) return; // the falling hazard speaks for itself
 
   const cx = SCREEN_W / 2;
+
+  // The fist badge — steady, not blinking — makes it obvious what triggered
+  // this: the same PNCH indicator the top bar shows (always 0 here, since
+  // this scene is only reached once PUNCH is exhausted).
+  const badgeW = pnchBadgeWidth(pnchRemaining(game));
+  drawPnchBadge(
+    ctx,
+    assets,
+    game,
+    Math.round(cx - badgeW / 2),
+    Math.round(SCREEN_H / 2 - 55),
+    "#ffffff",
+  );
+
   if (Math.floor(clockMs / 350) % 2 === 0) {
     drawText(ctx, LABELS.tired.title, cx, Math.round(SCREEN_H / 2 - 40), "#ffffff", "center");
   }

@@ -125,7 +125,7 @@ export class Renderer {
     }
 
     if (game.scene === "tired") {
-      drawTiredStrike(ctx, game, this.clockMs);
+      drawTiredStrike(ctx, game, this.clockMs, assets);
       drawHud(ctx, game, assets);
       return;
     }
