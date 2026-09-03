@@ -119,7 +119,7 @@ export class Renderer {
     }
 
     if (game.scene === "end") {
-      drawEndScreen(ctx, this.clockMs, game.endMs);
+      drawEndScreen(ctx, game, this.clockMs, game.endMs, assets);
       drawHud(ctx, game, assets);
       return;
     }

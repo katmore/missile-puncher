@@ -8,10 +8,12 @@ import { GLYPH_H, drawText, textWidth } from "./font";
 import {
   FIST_CROP,
   HEAD_CROP,
+  MISSILE_CROP,
   PUNCHER_CLIPS,
   drawCell,
   drawFist,
   drawHead,
+  drawMissileIcon,
   frameIndex,
   puncherSheet,
   type Assets,
@@ -87,6 +89,23 @@ const pnchBadgeWidth = (remaining: number): number =>
   badgeWidth(FIST_CROP.w, remaining);
 
 /**
+ * A horizontal missile + remaining-deflects-until-escalation, replacing the
+ * old "EXPL: N" text. `x, y` is the icon's top-left corner.
+ */
+function drawExplBadge(
+  ctx: CanvasRenderingContext2D,
+  assets: Assets,
+  game: Game,
+  x: number,
+  y: number,
+  color: string,
+): void {
+  drawMissileIcon(ctx, assets.missile, x, y);
+  const remaining = Math.max(0, CONFIG.limit_explode - game.deflects);
+  drawBadgeNumber(ctx, x, y, MISSILE_CROP.w, MISSILE_CROP.h, remaining, color);
+}
+
+/**
  * Punches left before the one that triggers TOO TIRED — the trigger is
  * `punches > limit_punch`, i.e. `limit_punch + 1` throws are actually
  * allowed, so this reads "1" on the player's last throw, not "0" a throw
@@ -112,12 +131,16 @@ export function drawHud(
   const pnchY = Math.round((11 - FIST_CROP.h) / 2);
   drawPnchBadge(ctx, assets, game, pnchX, pnchY, "#ffffff");
 
+  const explX = pnchX + pnchBadgeWidth(pnchRemaining(game)) + textWidth(h.sep);
+  const explY = Math.round((11 - MISSILE_CROP.h) / 2);
+  drawExplBadge(ctx, assets, game, explX, explY, "#ffffff");
+
+  // ESC / SPD stay plain text, right-justified against the far edge.
   const rest = [
-    `${h.explode}: ${Math.max(0, CONFIG.limit_explode - game.deflects)}`,
     `${h.escalate}: ${game.escalate}`,
     `${h.speed}: ${game.speedLevel}`,
   ].join(h.sep);
-  const restX = pnchX + pnchBadgeWidth(pnchRemaining(game)) + textWidth(h.sep);
+  const restX = SCREEN_W - margin - textWidth(rest);
   drawText(ctx, rest, restX, 2, "#ffffff", "left");
 }
 
@@ -309,25 +332,27 @@ export function drawKillVars(
 }
 
 /**
- * The bad ending: play frame dimmed, headline centred. The blinking prompt at
+ * The bad ending: play frame dimmed, headline centred, the DED badge (at 0 —
+ * that's what got you here) sitting just above it. The blinking prompt at
  * the bottom appears (and input is accepted) only after `end_prompt_delay`.
  */
 export function drawEndScreen(
   ctx: CanvasRenderingContext2D,
+  game: Game,
   clockMs: number,
   endMs: number,
+  assets: Assets,
 ): void {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.fillStyle = "rgba(6,6,10,0.6)";
   ctx.fillRect(0, 0, SCREEN_W, SCREEN_H);
-  drawText(
-    ctx,
-    LABELS.end.title,
-    SCREEN_W / 2,
-    Math.round(SCREEN_H / 2 - 3),
-    "#ffffff",
-    "center",
-  );
+
+  const cx = SCREEN_W / 2;
+  const titleY = Math.round(SCREEN_H / 2 - 3);
+  const badgeW = dedBadgeWidth(CONFIG.limit_miss - game.hits);
+  drawDedBadge(ctx, assets, game, Math.round(cx - badgeW / 2), titleY - 18, "#ffffff");
+
+  drawText(ctx, LABELS.end.title, cx, titleY, "#ffffff", "center");
   if (endMs >= CONFIG.end_prompt_delay) blinkPrompt(ctx, LABELS.end.prompt, clockMs);
 }
 

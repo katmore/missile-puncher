@@ -135,6 +135,23 @@ export function drawFist(
   ctx.drawImage(sheet.img, x, y, w, h, Math.round(dx), Math.round(dy), w, h);
 }
 
+/**
+ * Crop of the missile sheet's first (no-exhaust) frame, trimmed to its
+ * non-transparent bounds. Used by the HUD's EXPL indicator instead of the
+ * "EXPL: N" text it replaced.
+ */
+export const MISSILE_CROP = { x: 1, y: 2, w: 20, h: 8 } as const;
+
+export function drawMissileIcon(
+  ctx: CanvasRenderingContext2D,
+  sheet: Sheet,
+  dx: number,
+  dy: number,
+): void {
+  const { x, y, w, h } = MISSILE_CROP;
+  ctx.drawImage(sheet.img, x, y, w, h, Math.round(dx), Math.round(dy), w, h);
+}
+
 export function drawCell(
   ctx: CanvasRenderingContext2D,
   sheet: Sheet,
