@@ -19,7 +19,7 @@ export const LABELS = {
    * counters (ROT13'd there).
    */
   hud: {
-    punch: "PNCH", //     every punch thrown             (kill-screen limit)
+    punch: "PNCH", //     counts DOWN from limit_punch to 0 (kill-screen limit)
     explode: "EXPL", // missiles deflected to airburst (escalate limit)
     miss: "DED", //        counts DOWN from limit_miss to 0 (bad-end limit)
     escalate: "ESC", // current level (wraps 0..MAX_ESCALATION_TIER)

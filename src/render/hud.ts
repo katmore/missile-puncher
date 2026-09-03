@@ -64,7 +64,7 @@ export function drawHud(
   drawDedBadge(ctx, assets, game, margin, 0, "#ffffff");
 
   const rest = [
-    `${h.punch}: ${game.punches}`,
+    `${h.punch}: ${Math.max(0, CONFIG.limit_punch - game.punches)}`,
     `${h.explode}: ${game.deflects}`,
     `${h.escalate}: ${game.escalate}`,
     `${h.speed}: ${game.speedLevel}`,
