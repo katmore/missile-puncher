@@ -116,9 +116,21 @@ function drawExplBadge(
  * `punches > limit_punch`, i.e. `limit_punch + 1` throws are actually
  * allowed, so this reads "1" on the player's last throw, not "0" a throw
  * early. Mechanics (the trigger itself) are unchanged; this is display-only.
+ *
+ * While a swing is still in its startup/active window, shows
+ * `punchesBeforeSwing` instead of the live (already-incremented) `punches`
+ * — a punch that's about to land refunds itself before the swing ever
+ * reaches recovery, so counting the throw immediately would blip the
+ * number down then right back up. Once the swing reaches recovery the
+ * outcome is settled (the hitbox only exists during active), so it reads
+ * live `punches` again, same as when idle.
  */
-const pnchRemaining = (game: Game): number =>
-  Math.max(0, CONFIG.limit_punch + 1 - game.punches);
+export const pnchRemaining = (game: Game): number => {
+  const holding =
+    game.puncher.state === "punch" && game.puncher.phase !== "recovery";
+  const punches = holding ? game.punchesBeforeSwing : game.punches;
+  return Math.max(0, CONFIG.limit_punch + 1 - punches);
+};
 
 /** Running scoreboard, always visible during play. */
 export function drawHud(

@@ -69,6 +69,14 @@ export class Game {
   punches = 0; // every punch thrown              -> HUD "PUNCH"
   deflects = 0; // missiles punched away          -> HUD "EXPLODE"
   hits = 0; // times the missile hit the Puncher  -> HUD "MISS"
+  /**
+   * `punches` from just before the in-flight swing's throw incremented it —
+   * lets the HUD hold its PNCH number steady through startup+active instead
+   * of blipping down then immediately back up on a punch that's about to
+   * land (see `pnchRemaining` in hud.ts). Only meaningful while
+   * `puncher.state === "punch"`.
+   */
+  punchesBeforeSwing = 0;
 
   // Persistent "level" — bumped on each escalation (EXPLODE limit reached),
   // wraps 0..MAX_ESCALATION_TIER. Never reset except a page reload / TOO TIRED.
@@ -252,7 +260,10 @@ export class Game {
     }
 
     this.puncher.update(dtMs, this.input);
-    if (this.puncher.punchStarted) this.punches++;
+    if (this.puncher.punchStarted) {
+      this.punchesBeforeSwing = this.punches;
+      this.punches++;
+    }
     this.updateCamp(dtMs); // may spawn `this.dropper`
     this.missile?.update(dtMs);
     this.dropper?.update(dtMs);

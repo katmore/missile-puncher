@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { CONFIG } from "../src/config";
 import { makeSim } from "../src/harness/sim";
+import { pnchRemaining } from "../src/render/hud";
 
 /**
  * A landed punch refunds the PUNCH it cost (Game.resolveCollisions) — only
@@ -57,6 +58,54 @@ describe("PUNCH refund", () => {
     } finally {
       CONFIG.missile_spawn_delay = savedSpawnDelay;
     }
+  });
+
+  test("the PNCH display doesn't blip down-then-up on a punch that's about to land", () => {
+    const sim = makeSim({ seed: 2, scene: "play" });
+    const g = sim.game;
+    g.punches = 1;
+    g.punchesBeforeSwing = 1;
+    const settled = pnchRemaining(g); // the steady reading before the throw
+
+    // The throw: punches increments, but the swing just started.
+    g.puncher.state = "punch";
+    g.puncher.phase = "startup";
+    g.punchesBeforeSwing = 1;
+    g.punches = 2;
+    expect(pnchRemaining(g)).toBe(settled); // held — no blip yet
+
+    // Still in the hitbox-active window, not yet resolved.
+    g.puncher.phase = "active";
+    expect(pnchRemaining(g)).toBe(settled); // still held
+
+    // It connects: resolveCollisions refunds it mid-active.
+    g.punches = 1;
+    expect(pnchRemaining(g)).toBe(settled); // still held — never blipped at all
+
+    // Recovery: the outcome (a refund) is settled, live punches matches
+    // what was already showing, so nothing visibly changes.
+    g.puncher.phase = "recovery";
+    expect(pnchRemaining(g)).toBe(settled);
+  });
+
+  test("the PNCH display reveals a genuine whiff once its swing reaches recovery", () => {
+    const sim = makeSim({ seed: 2, scene: "play" });
+    const g = sim.game;
+    g.punches = 1;
+    g.punchesBeforeSwing = 1;
+    const before = pnchRemaining(g);
+
+    g.puncher.state = "punch";
+    g.puncher.phase = "startup";
+    g.punchesBeforeSwing = 1;
+    g.punches = 2;
+    expect(pnchRemaining(g)).toBe(before); // held through startup
+
+    g.puncher.phase = "active";
+    expect(pnchRemaining(g)).toBe(before); // held through active — never connected
+
+    g.puncher.phase = "recovery"; // active closed with no refund: a real whiff
+    expect(pnchRemaining(g)).toBe(before - 1);
   });
 
   test("the throw that pushes PUNCH over the limit doesn't trigger TOO TIRED mid-swing", () => {
