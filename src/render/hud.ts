@@ -159,13 +159,12 @@ export function drawHud(
   const explY = Math.round((11 - MISSILE_CROP.h) / 2);
   drawExplBadge(ctx, assets, game, explX, explY, "#ffffff", missileAnimMs);
 
-  // ESC / SPD stay plain text, right-justified against the far edge.
-  const rest = [
-    `${h.escalate}: ${game.escalate}`,
-    `${h.speed}: ${game.speedLevel}`,
-  ].join(h.sep);
-  const restX = SCREEN_W - margin - textWidth(rest);
-  drawText(ctx, rest, restX, 2, "#ffffff", "left");
+  // Player-friendly "level" — SPEED+1 (1-based: it starts at 0 internally)
+  // and ESCALATE, plain "S-E" with no label, right-justified against the
+  // far edge. e.g. a fresh game reads "1-0".
+  const level = `${game.speedLevel + 1}-${game.escalate}`;
+  const levelX = SCREEN_W - margin - textWidth(level);
+  drawText(ctx, level, levelX, 2, "#ffffff", "left");
 }
 
 /**

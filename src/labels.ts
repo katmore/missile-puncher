@@ -13,10 +13,11 @@
 export const LABELS = {
   /**
    * Running scoreboard along the top during play: a fist icon + N, a head
-   * icon + N, then `${explode}: N${sep}${escalate}: N${sep}${speed}: N` as
-   * plain text (see hud.ts drawHud). `punch` / `miss` no longer appear as
-   * text there — they're read here only for the kill-screen counters
-   * (ROT13'd there), which still label everything by these strings.
+   * icon + N, an EXPL missile icon + N, then a plain "S-E" level readout
+   * (SPEED+1 - ESCALATE, no label) right-justified at the far edge (see
+   * hud.ts drawHud). `punch` / `miss` / `explode` no longer appear as text
+   * there — they're read here only for the kill-screen counters (ROT13'd
+   * there), which still label everything by these strings.
    */
   hud: {
     punch: "PNCH", //     counts DOWN from limit_punch+1 to 0, so it's 1 on the
@@ -24,9 +25,7 @@ export const LABELS = {
     //                    pnchRemaining) (kill-screen limit)
     explode: "EXPL", // counts DOWN from limit_explode to 0 (escalate limit)
     miss: "DED", //        counts DOWN from limit_miss to 0 (bad-end limit)
-    escalate: "ESC", // current level (wraps 0..MAX_ESCALATION_TIER)
-    speed: "SPD", //       +0.5x missile speed per point; up when ESC wraps
-    sep: "  ", //          gap between the entries
+    sep: "  ", //          gap between the badge entries
   },
 
   /** Start screen. */
