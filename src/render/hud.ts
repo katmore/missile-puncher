@@ -101,7 +101,8 @@ export function drawHud(
   drawDedBadge(ctx, assets, game, margin, 0, "#ffffff");
   const pnchX =
     margin + dedBadgeWidth(CONFIG.limit_miss - game.hits) + textWidth(h.sep);
-  drawPnchBadge(ctx, assets, game, pnchX, 0, "#ffffff");
+  const pnchY = Math.round((11 - FIST_CROP.h) / 2);
+  drawPnchBadge(ctx, assets, game, pnchX, pnchY, "#ffffff");
 
   const rest = [
     `${h.explode}: ${game.deflects}`,

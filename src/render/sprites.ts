@@ -111,17 +111,18 @@ export function drawHead(
 }
 
 /**
- * Crop of the extended arm + fist from the "extension" clip's single frame
+ * Crop of just the forearm + fist from the "extension" clip's single frame
  * (the pose with the punch hitbox active) — same rect works for both
  * sheets. Used by the HUD's PNCH indicator instead of the "PNCH: N" text it
- * replaced. Wide enough to keep the torso-to-fist gap and the fist itself
- * both visible, not just an isolated blob.
+ * replaced. Starts right at the torso's own outline (x: 16), deliberately
+ * excluding the torso itself — a body-shaped icon reads as confusing, not
+ * as "a fist".
  */
 export const FIST_CROP = {
-  x: 9,
-  y: PUNCHER_CLIPS.extension.row * SHEETS["puncher-m"].cellH + 9,
-  w: 15,
-  h: 11,
+  x: 16,
+  y: PUNCHER_CLIPS.extension.row * SHEETS["puncher-m"].cellH + 11,
+  w: 8,
+  h: 6,
 } as const;
 
 export function drawFist(
