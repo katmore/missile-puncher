@@ -21,7 +21,7 @@ export const LABELS = {
   hud: {
     punch: "PNCH", //     every punch thrown             (kill-screen limit)
     explode: "EXPL", // missiles deflected to airburst (escalate limit)
-    miss: "MISS", //       times a missile hit you        (bad-end limit)
+    miss: "DED", //        counts DOWN from limit_miss to 0 (bad-end limit)
     escalate: "ESC", // current level (wraps 0..MAX_ESCALATION_TIER)
     speed: "SPD", //       +0.5x missile speed per point; up when ESC wraps
     sep: "  ", //          gap between the entries

@@ -30,7 +30,7 @@ export function drawHud(ctx: CanvasRenderingContext2D, game: Game): void {
   const line = [
     `${h.punch}: ${game.punches}`,
     `${h.explode}: ${game.deflects}`,
-    `${h.miss}: ${game.hits}`,
+    `${h.miss}: ${CONFIG.limit_miss - game.hits}`,
     `${h.escalate}: ${game.escalate}`,
     `${h.speed}: ${game.speedLevel}`,
   ].join(h.sep);
@@ -308,7 +308,7 @@ export function drawTiredScreen(
   const h = LABELS.hud;
   const tally = [
     `${h.escalate}: ${game.escalate}`,
-    `${h.miss}: ${game.hits}`,
+    `${h.miss}: ${CONFIG.limit_miss - game.hits}`,
   ].join(h.sep);
   drawText(ctx, tally, cx, Math.round(SCREEN_H / 2 + 2), "#c9ccd6", "center");
 
