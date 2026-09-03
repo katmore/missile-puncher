@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Missile Punch — Sprite Editor</title>
+    <link rel="stylesheet" href="/src/editor/style.css" />
+  </head>
+  <body>
+    <header id="bar">
+      <strong>SPRITE EDITOR</strong>
+      <select id="sheet" title="sheet"></select>
+      <span class="tools" id="tools"></span>
+      <span class="zoom">
+        <button id="zoom-out" title="zoom out (-)">−</button>
+        <span id="zoom-val">—</span>
+        <button id="zoom-in" title="zoom in (+)">+</button>
+        <button id="zoom-fit" title="fit (f)">fit</button>
+      </span>
+      <label class="chk"><input type="checkbox" id="grid" checked /> grid</label>
+      <label class="chk"><input type="checkbox" id="guides" checked /> guides</label>
+      <input type="color" id="mix" title="mix a colour" value="#1a1816" />
+      <span class="spacer"></span>
+      <button id="undo" title="ctrl+z">undo</button>
+      <button id="redo" title="ctrl+shift+z">redo</button>
+      <button id="revert" title="reload from disk">revert</button>
+      <button id="save" class="primary" title="ctrl+s">save</button>
+      <button id="download">png</button>
+      <span id="status"></span>
+    </header>
+    <main>
+      <aside id="palette"></aside>
+      <section id="stage">
+        <div id="sizer"><canvas id="grid-canvas"></canvas></div>
+      </section>
+      <aside id="side">
+        <div id="rows"></div>
+        <label class="chk playrow">
+          <input type="checkbox" id="play" checked /> play
+        </label>
+        <canvas id="preview-canvas" width="660" height="480"></canvas>
+        <div id="ref-drop">drop an image to trace<br /><span id="ref-name"></span></div>
+        <label class="chk">
+          ref <input type="range" id="ref-alpha" min="0" max="100" value="35" />
+        </label>
+        <p class="hint">
+          paint L-drag · <b>wheel = zoom</b> · scrollbars / shift-wheel /
+          space-drag = pan · <kbd>f</kbd> fit. saves write straight to
+          <code>src/assets/</code> — the game tab hot-reloads.
+        </p>
+      </aside>
+    </main>
+    <script type="module" src="/src/editor/main.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Missile Punch — Config Tuner</title>
+    <link rel="stylesheet" href="/src/tuner/style.css" />
+  </head>
+  <body>
+    <header id="bar">
+      <strong>CONFIG TUNER</strong>
+      <span id="status"></span>
+      <span class="spacer"></span>
+      <input id="filter" type="search" placeholder="filter…" />
+      <button id="revert" title="reload from disk">revert</button>
+      <button id="save" class="primary" title="ctrl+s">save to config.ts</button>
+    </header>
+    <main>
+      <aside id="panel"></aside>
+      <section id="stage">
+        <iframe id="game" src="/" title="game preview"></iframe>
+      </section>
+    </main>
+    <script type="module" src="/src/tuner/main.ts"></script>
+  </body>
+</html>

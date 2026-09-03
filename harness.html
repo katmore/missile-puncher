@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Missile Punch — Test Harness</title>
+    <link rel="stylesheet" href="/src/harness/style.css" />
+  </head>
+  <body>
+    <header id="bar">
+      <strong>TEST HARNESS</strong>
+      <span id="status"></span>
+      <span class="spacer"></span>
+      <span class="transport">
+        <button id="pause">pause</button>
+        <button id="step1" title="1 step">▶|</button>
+        <button id="step30" title="30 steps (¼s)">▶▶|</button>
+        <label>speed
+          <select id="speed">
+            <option value="0.1">0.1×</option>
+            <option value="0.25">0.25×</option>
+            <option value="0.5">0.5×</option>
+            <option value="1" selected>1×</option>
+            <option value="2">2×</option>
+            <option value="4">4×</option>
+          </select>
+        </label>
+      </span>
+    </header>
+    <main>
+      <aside id="panel">
+        <h2>scenario</h2>
+        <div class="grid">
+          <label>seed <input id="seed" type="number" value="1" /></label>
+          <label>escalate <input id="escalate" type="number" value="0" min="0" /></label>
+          <label>speed <input id="speed" type="number" value="0" min="0" /></label>
+          <label>gender
+            <select id="gender"><option value="m">GUY</option><option value="f">GAL</option></select>
+          </label>
+          <label>scene
+            <select id="scene">
+              <option>play</option><option>select</option><option>downed</option>
+              <option>tired</option><option>end</option><option>escalation</option>
+            </select>
+          </label>
+        </div>
+        <button id="apply" class="primary">apply scenario</button>
+        <button id="spawn">spawn missile now</button>
+
+        <h2>bot</h2>
+        <div class="grid">
+          <label>kind <select id="bot"></select></label>
+          <label>seed <input id="botseed" type="number" value="1" /></label>
+        </div>
+        <button id="runbot" class="primary">run bot</button>
+        <button id="stopbot">stop bot</button>
+
+        <h2>state</h2>
+        <pre id="state">—</pre>
+
+        <h2>events</h2>
+        <button id="clearlog" class="ghost">clear</button>
+        <div id="log"></div>
+      </aside>
+      <section id="stage"><iframe id="game" src="/" title="game"></iframe></section>
+    </main>
+    <script type="module" src="/src/harness/main.ts"></script>
+  </body>
+</html>

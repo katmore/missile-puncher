@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <title>Missile Puncher — Prototype</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: #0a0a0c;
+        overflow: hidden;
+        touch-action: none;
+        overscroll-behavior: none;
+        -webkit-tap-highlight-color: transparent;
+      }
+      body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      #game {
+        image-rendering: pixelated;
+        display: block;
+      }
+      #hint {
+        position: fixed;
+        left: 8px;
+        bottom: 6px;
+        font: 11px/1.4 ui-monospace, monospace;
+        color: #55585f;
+        user-select: none;
+        transition: opacity 0.6s;
+      }
+      #hint.faded {
+        opacity: 0;
+      }
+
+      /* ---- touch controls (revealed by body.touch, see engine/touch.ts) ----
+         anywhere: drag = move (floating stick), tap = punch */
+      #touchpad {
+        display: none;
+      }
+      body.touch #touchpad {
+        display: block;
+        position: fixed;
+        inset: 0;
+        z-index: 10;
+        touch-action: none;
+      }
+      body.touch #hint {
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: 8px;
+        color: #7d818b;
+        white-space: nowrap;
+      }
+      #stick-base,
+      #stick-knob {
+        position: fixed;
+        display: none;
+        pointer-events: none;
+        border-radius: 50%;
+        box-sizing: border-box;
+        transform: translate(-50%, -50%);
+        z-index: 11;
+      }
+      #stick-base {
+        width: 104px;
+        height: 104px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+      }
+      #stick-knob {
+        width: 46px;
+        height: 46px;
+        background: rgba(255, 255, 255, 0.28);
+        border: 2px solid rgba(255, 255, 255, 0.55);
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="game"></canvas>
+    <div id="hint">← →  ·  Z PUNCH  ·  ` DEBUG  ·  R RESET</div>
+
+    <div id="touchpad" aria-hidden="true"></div>
+    <div id="stick-base"></div>
+    <div id="stick-knob"></div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
