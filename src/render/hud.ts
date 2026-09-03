@@ -4,10 +4,12 @@ import { LABELS } from "../labels";
 import type { Game } from "../game/game";
 import { SHEETS } from "./sheets";
 import { KILL_DISTORT_CYCLE_MS } from "../killscreen";
-import { drawText, textWidth } from "./font";
+import { GLYPH_H, drawText, textWidth } from "./font";
 import {
+  HEAD_CROP,
   PUNCHER_CLIPS,
   drawCell,
+  drawHead,
   frameIndex,
   puncherSheet,
   type Assets,
@@ -22,19 +24,54 @@ const rot13 = (s: string): string =>
 /** the 5 colours the overflowed variable endlessly cycles through */
 const DISTORT_COLORS = ["#ff3b6b", "#22e0ff", "#ffe14d", "#8cff5a", "#ff8a2a"];
 
+const DED_GAP = 2; // px between the head icon and its number
+
+/** Pixel width of the head-icon + number combo — for layout / centering. */
+function dedBadgeWidth(remaining: number): number {
+  return HEAD_CROP.w + DED_GAP + textWidth(String(remaining));
+}
+
+/**
+ * The current puncher's head + remaining-hits-before-BAD-END, replacing the
+ * old "DED: N" text. `x, y` is the head icon's top-left corner.
+ */
+function drawDedBadge(
+  ctx: CanvasRenderingContext2D,
+  assets: Assets,
+  game: Game,
+  x: number,
+  y: number,
+  color: string,
+): void {
+  drawHead(ctx, puncherSheet(assets, game.gender), x, y);
+  const remaining = CONFIG.limit_miss - game.hits;
+  const numX = x + HEAD_CROP.w + DED_GAP;
+  const numY = y + Math.round((HEAD_CROP.h - GLYPH_H) / 2);
+  drawText(ctx, String(remaining), numX, numY, color, "left");
+}
+
 /** Running scoreboard, always visible during play. */
-export function drawHud(ctx: CanvasRenderingContext2D, game: Game): void {
+export function drawHud(
+  ctx: CanvasRenderingContext2D,
+  game: Game,
+  assets: Assets,
+): void {
   ctx.fillStyle = "rgba(0,0,0,0.30)";
   ctx.fillRect(0, 0, SCREEN_W, 11);
   const h = LABELS.hud;
-  const line = [
+
+  const margin = 2;
+  drawDedBadge(ctx, assets, game, margin, 0, "#ffffff");
+
+  const rest = [
     `${h.punch}: ${game.punches}`,
     `${h.explode}: ${game.deflects}`,
-    `${h.miss}: ${CONFIG.limit_miss - game.hits}`,
     `${h.escalate}: ${game.escalate}`,
     `${h.speed}: ${game.speedLevel}`,
   ].join(h.sep);
-  drawText(ctx, line, SCREEN_W / 2, 2, "#ffffff", "center");
+  const restX =
+    margin + dedBadgeWidth(CONFIG.limit_miss - game.hits) + textWidth(h.sep);
+  drawText(ctx, rest, restX, 2, "#ffffff", "left");
 }
 
 /**
@@ -290,6 +327,7 @@ export function drawTiredScreen(
   ctx: CanvasRenderingContext2D,
   game: Game,
   clockMs: number,
+  assets: Assets,
 ): void {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.fillStyle = "rgba(6,6,10,0.6)";
@@ -306,11 +344,15 @@ export function drawTiredScreen(
   );
 
   const h = LABELS.hud;
-  const tally = [
-    `${h.escalate}: ${game.escalate}`,
-    `${h.miss}: ${CONFIG.limit_miss - game.hits}`,
-  ].join(h.sep);
-  drawText(ctx, tally, cx, Math.round(SCREEN_H / 2 + 2), "#c9ccd6", "center");
+  const escText = `${h.escalate}: ${game.escalate}`;
+  const remaining = CONFIG.limit_miss - game.hits;
+  const tallyY = Math.round(SCREEN_H / 2 + 2);
+  const totalW = textWidth(escText) + textWidth(h.sep) + dedBadgeWidth(remaining);
+  const startX = Math.round(cx - totalW / 2);
+  drawText(ctx, escText, startX, tallyY, "#c9ccd6", "left");
+  const badgeX = startX + textWidth(escText) + textWidth(h.sep);
+  const badgeY = tallyY - Math.round((HEAD_CROP.h - GLYPH_H) / 2);
+  drawDedBadge(ctx, assets, game, badgeX, badgeY, "#c9ccd6");
 
   if (game.tiredMs >= CONFIG.tired_prompt_delay) {
     blinkPrompt(ctx, LABELS.tired.prompt, clockMs);

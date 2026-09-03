@@ -92,6 +92,24 @@ export function frameIndex(
   return clip.loop ? raw % clip.frames : Math.min(raw, clip.frames - 1);
 }
 
+/**
+ * Crop of just the head from the idle clip's first frame (row 0, col 0) —
+ * same rect works for both puncher sheets, the head sits in the same spot on
+ * every cell. Used by the HUD's DED indicator (see hud.ts) instead of the
+ * "DED: N" text it replaced.
+ */
+export const HEAD_CROP = { x: 5, y: 0, w: 13, h: 11 } as const;
+
+export function drawHead(
+  ctx: CanvasRenderingContext2D,
+  sheet: Sheet,
+  dx: number,
+  dy: number,
+): void {
+  const { x, y, w, h } = HEAD_CROP;
+  ctx.drawImage(sheet.img, x, y, w, h, Math.round(dx), Math.round(dy), w, h);
+}
+
 export function drawCell(
   ctx: CanvasRenderingContext2D,
   sheet: Sheet,

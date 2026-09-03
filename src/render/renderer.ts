@@ -91,7 +91,7 @@ export class Renderer {
 
     if (game.scene === "select") {
       drawStartScreen(ctx, game, assets, this.clockMs);
-      drawHud(ctx, game);
+      drawHud(ctx, game, assets);
       return;
     }
 
@@ -122,29 +122,29 @@ export class Renderer {
 
     if (game.scene === "end") {
       drawEndScreen(ctx, this.clockMs, game.endMs);
-      drawHud(ctx, game);
+      drawHud(ctx, game, assets);
       return;
     }
 
     if (game.scene === "tired") {
-      drawTiredScreen(ctx, game, this.clockMs);
-      drawHud(ctx, game);
+      drawTiredScreen(ctx, game, this.clockMs, assets);
+      drawHud(ctx, game, assets);
       return;
     }
 
     if (game.scene === "escalation") {
       drawEscalationScreen(ctx, this.clockMs);
-      drawHud(ctx, game);
+      drawHud(ctx, game, assets);
       return;
     }
 
     if (game.scene === "downed") {
       drawDownedScreen(ctx, this.clockMs, game.downedMs);
-      drawHud(ctx, game);
+      drawHud(ctx, game, assets);
       return;
     }
 
-    drawHud(ctx, game);
+    drawHud(ctx, game, assets);
     if (game.debug) drawDebug(ctx, game);
   }
 
