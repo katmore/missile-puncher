@@ -64,11 +64,45 @@ async function main(): Promise<void> {
     // ensures the game's own side of the handshake happens.)
     if (new URLSearchParams(location.search).has("sound")) audio.unlock();
 
+    // Recording-tool glue: tap `audio`'s output into a MediaRecorder so a
+    // scratch Playwright script can capture real (non-silent) sound
+    // alongside its video, driven entirely from page.evaluate() calls.
+    let audioChunks: Blob[] = [];
+    let audioRecorder: MediaRecorder | null = null;
+
     Object.assign(window as unknown as Record<string, unknown>, {
       __game: game,
       __renderer: renderer,
       __harness: harness.api,
       __CONFIG: CONFIG,
+      __startAudioCapture: (): boolean => {
+        const stream = audio.captureStream();
+        if (!stream) return false;
+        audioChunks = [];
+        audioRecorder = new MediaRecorder(stream);
+        audioRecorder.ondataavailable = (e) => {
+          if (e.data.size > 0) audioChunks.push(e.data);
+        };
+        audioRecorder.start();
+        return true;
+      },
+      __stopAudioCapture: (): Promise<string> =>
+        new Promise((resolve) => {
+          if (!audioRecorder) {
+            resolve("");
+            return;
+          }
+          audioRecorder.onstop = () => {
+            const blob = new Blob(audioChunks, { type: "audio/webm" });
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              const b64 = (reader.result as string).split(",")[1] ?? "";
+              resolve(b64);
+            };
+            reader.readAsDataURL(blob);
+          };
+          audioRecorder.stop();
+        }),
       // Live-patch one config value by path (used by the config tuner running
       // in a parent frame). Mutates in place so the running attempt is kept,
       // exactly like the config.ts hot-reload does.

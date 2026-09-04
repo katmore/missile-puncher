@@ -47,6 +47,19 @@ export class Audio {
     if (this.log.length > 500) this.log.shift();
   }
 
+  /**
+   * Dev-only: taps `master` into an additional stream a `MediaRecorder` can
+   * capture, for recording a real (non-silent) demo video — used by a
+   * scratch Playwright script, never by the shipped game. The normal output
+   * to speakers is untouched; this just adds a second destination.
+   */
+  captureStream(): MediaStream | null {
+    if (!import.meta.env.DEV || !this.ctx || !this.master) return null;
+    const dest = this.ctx.createMediaStreamDestination();
+    this.master.connect(dest);
+    return dest.stream;
+  }
+
   unlock(): void {
     if (this.ctx) {
       void this.ctx.resume();
